@@ -122,19 +122,6 @@ paths:
       description: |
         This operation can be used to create a new API specifying the details of the API in the payload.
       operationId: createAPI
-      parameters:
-        - name: openAPIVersion
-          in: query
-          description: Open api version
-          required: false
-          style: form
-          explode: true
-          schema:
-            type: string
-            default: v3
-            enum:
-              - v2
-              - v3
       requestBody:
         description: API object that needs to be added
         content:
@@ -434,9 +421,9 @@ paths:
     post:
       tags:
         - APIs
-      summary: Import a Service from Service Catalog
-      description: This operation can be used to create an API from a Service from Service Catalog
-      operationId: importServiceFromCatalog
+      summary: Create API from a Service
+      description: This operation can be used to create an API from the Services lis
+      operationId: importService
       parameters:
         - name: serviceKey
           in: query
@@ -501,22 +488,22 @@ paths:
                 description: The server encountered an internal error. Please contact administrator.
                 moreInfo: ""
                 error: []
-  /apis/import-openapi:
+  /apis/import-definition:
     post:
       tags:
         - APIs
-      summary: Import an OpenAPI Definition
+      summary: Import an API Definition
       description: |
-        This operation can be used to create an API from an OpenAPI definition. Provide either `url` or `file`
+        This operation can be used to create an API from an API definition. Provide either `url` or `file`
         to specify the definition.
 
         Specify additionalProperties with **at least** API's name, version, context and endpointConfig.
-      operationId: importOpenAPIDefinition
+      operationId: importAPIDefinition
       requestBody:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/apis_importopenapi_body'
+              $ref: '#/components/schemas/apis_importdefinition_body'
       responses:
         "201":
           description: |
@@ -566,71 +553,7 @@ paths:
                 description: The entity of the request was not in a supported format
                 moreInfo: ""
                 error: []
-  /apis/import-graphql-schema:
-    post:
-      tags:
-        - APIs
-      summary: Import a GraphQL SDL
-      description: |
-        This operation can be used to create api from api definition.APIMgtDAOTest
-
-        API definition is GraphQL Schema
-      operationId: importGraphQLSchema
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/apis_importgraphqlschema_body'
-      responses:
-        "201":
-          description: |
-            Created.
-            Successful response with the newly created object as entity in the body.
-            Location header contains URL of newly created entity.
-          headers:
-            Location:
-              description: |
-                The URL of the newly created resource.
-              style: simple
-              explode: false
-              schema:
-                type: string
-            Content-Type:
-              description: |
-                The content type of the body.
-              style: simple
-              explode: false
-              schema:
-                type: string
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/API'
-        "400":
-          description: Bad Request. Invalid request or validation error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 400
-                message: Bad Request
-                description: Invalid request or validation error
-                moreInfo: ""
-                error: []
-        "415":
-          description: Unsupported Media Type. The entity of the request was not in a supported format.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 415
-                message: Unsupported media type
-                description: The entity of the request was not in a supported format
-                moreInfo: ""
-                error: []
-  /apis/validate-openapi:
+  /apis/validate-definition:
     post:
       tags:
         - Validation
@@ -655,7 +578,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/apis_validateopenapi_body'
+              $ref: '#/components/schemas/apis_validatedefinition_body'
       responses:
         "200":
           description: |
@@ -672,7 +595,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OpenAPIDefinitionValidationResponse'
+                $ref: '#/components/schemas/APIDefinitionValidationResponse'
         "400":
           description: Bad Request. Invalid request or validation error.
           content:
@@ -743,129 +666,14 @@ paths:
                 description: The specified resource does not exist
                 moreInfo: ""
                 error: []
-  /apis/validate-asyncapi:
-    post:
-      tags:
-        - Validation
-      summary: Validate an AsyncAPI Specification
-      description: This operation can be used to validate and AsyncAPI Specification and retrieve a summary. Provide either 'url' or 'file' to specify the definition.
-      operationId: validateAsyncAPISpecification
-      parameters:
-        - name: returnContent
-          in: query
-          description: Specify whether to return the full content of the AsyncAPI specification in the response. This is only applicable when using url based validation
-          required: false
-          style: form
-          explode: true
-          schema:
-            type: boolean
-            default: false
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/apis_validateasyncapi_body'
-      responses:
-        "200":
-          description: OK. API definition validation information is returned
-          headers:
-            Content-Type:
-              description: The content type of the body.
-              style: simple
-              explode: false
-              schema:
-                type: string
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AsyncAPISpecificationValidationResponse'
-        "400":
-          description: Bad Request. Invalid request or validation error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 400
-                message: Bad Request
-                description: Invalid request or validation error
-                moreInfo: ""
-                error: []
-        "404":
-          description: Not Found. The specified resource does not exist.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 404
-                message: Not Found
-                description: The specified resource does not exist
-                moreInfo: ""
-                error: []
-  /apis/validate-graphql-schema:
-    post:
-      tags:
-        - Validation
-      summary: Validate a GraphQL SDL
-      description: |
-        This operation can be used to validate a graphQL definition and retrieve a summary.
-      operationId: validateGraphQLSchema
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/apis_validategraphqlschema_body'
-        required: true
-      responses:
-        "200":
-          description: |
-            OK.
-            API definition validation information is returned
-          headers:
-            Content-Type:
-              description: |
-                The content type of the body.
-              style: simple
-              explode: false
-              schema:
-                type: string
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GraphQLValidationResponse'
-        "400":
-          description: Bad Request. Invalid request or validation error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 400
-                message: Bad Request
-                description: Invalid request or validation error
-                moreInfo: ""
-                error: []
-        "404":
-          description: Not Found. The specified resource does not exist.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 404
-                message: Not Found
-                description: The specified resource does not exist
-                moreInfo: ""
-                error: []
-  /apis/{apiId}/swagger:
+  /apis/{apiId}/definition:
     get:
       tags:
         - APIs
-      summary: Get Swagger Definition
+      summary: Get API Definition
       description: |
-        This operation can be used to retrieve the swagger definition of an API.
-      operationId: getAPISwagger
+        This operation can be used to retrieve the definition of an API.
+      operationId: getAPIDefinition
       parameters:
         - name: apiId
           in: path
@@ -880,7 +688,7 @@ paths:
         "200":
           description: |
             OK.
-            Requested swagger document of the API is returned
+            Requested definition document of the API is returned
           headers:
             Content-Type:
               description: |
@@ -921,10 +729,10 @@ paths:
     put:
       tags:
         - APIs
-      summary: Update Swagger Definition
+      summary: Update API Definition
       description: |
-        This operation can be used to update the swagger definition of an existing API. Swagger definition to be updated is passed as a form data parameter `apiDefinition`.
-      operationId: updateAPISwagger
+        This operation can be used to update the API definition of an existing API. API definition to be updated is passed as a form data parameter `apiDefinition`.
+      operationId: updateAPIDefinition
       parameters:
         - name: apiId
           in: path
@@ -939,7 +747,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/apiId_swagger_body'
+              $ref: '#/components/schemas/apiId_definition_body'
       responses:
         "200":
           description: |
@@ -965,320 +773,6 @@ paths:
               schema:
                 type: string
                 example: ""
-        "400":
-          description: Bad Request. Invalid request or validation error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 400
-                message: Bad Request
-                description: Invalid request or validation error
-                moreInfo: ""
-                error: []
-        "403":
-          description: Forbidden. The request must be conditional but no condition has been specified.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 403
-                message: Forbidden
-                description: The request must be conditional but no condition has been specified
-                moreInfo: ""
-                error: []
-        "404":
-          description: Not Found. The specified resource does not exist.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 404
-                message: Not Found
-                description: The specified resource does not exist
-                moreInfo: ""
-                error: []
-        "412":
-          description: Precondition Failed. The request has not been performed because one of the preconditions is not met.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 412
-                message: Precondition Failed
-                description: The request has not been performed because one of the preconditions is not met
-                moreInfo: ""
-                error: []
-  /apis/{apiId}/asyncapi:
-    get:
-      tags:
-        - APIs
-      summary: Get AsyncAPI definition
-      description: |
-        This operation can be used to retrieve the AsyncAPI definition of an API.
-      parameters:
-        - name: apiId
-          in: path
-          description: |
-            **API ID** consisting of the **Name** of the API.
-          required: true
-          style: simple
-          explode: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: |
-            OK.
-            Requested AsyncAPI definition of the API is returned
-          headers:
-            Content-Type:
-              description: |
-                The content type of the body.
-              style: simple
-              explode: false
-              schema:
-                type: string
-          content:
-            application/json:
-              schema:
-                type: string
-                example: ""
-        "404":
-          description: Not Found. The specified resource does not exist.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 404
-                message: Not Found
-                description: The specified resource does not exist
-                moreInfo: ""
-                error: []
-        "406":
-          description: Not Acceptable. The requested media type is not supported.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 406
-                message: Not Acceptable
-                description: The requested media type is not supported
-                moreInfo: ""
-                error: []
-    put:
-      tags:
-        - APIs
-      summary: Update AsyncAPI definition
-      description: |
-        This operation can be used to update the AsyncAPI definition of an existing API. AsyncAPI definition to be updated is passed as a form data parameter 'apiDefinition'.
-      parameters:
-        - name: apiId
-          in: path
-          description: |
-            **API ID** consisting of the **Name** of the API.
-          required: true
-          style: simple
-          explode: false
-          schema:
-            type: string
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/apiId_asyncapi_body'
-      responses:
-        "200":
-          description: |
-            OK.
-            Successful response with updated AsyncAPI definition
-          headers:
-            Location:
-              description: |
-                The URL of the newly created resource.
-              style: simple
-              explode: false
-              schema:
-                type: string
-            Content-Type:
-              description: |
-                The content type of the body.
-              style: simple
-              explode: false
-              schema:
-                type: string
-          content:
-            application/json:
-              schema:
-                type: string
-                example: ""
-        "400":
-          description: Bad Request. Invalid request or validation error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 400
-                message: Bad Request
-                description: Invalid request or validation error
-                moreInfo: ""
-                error: []
-        "403":
-          description: Forbidden. The request must be conditional but no condition has been specified.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 403
-                message: Forbidden
-                description: The request must be conditional but no condition has been specified
-                moreInfo: ""
-                error: []
-        "404":
-          description: Not Found. The specified resource does not exist.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 404
-                message: Not Found
-                description: The specified resource does not exist
-                moreInfo: ""
-                error: []
-        "412":
-          description: Precondition Failed. The request has not been performed because one of the preconditions is not met.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 412
-                message: Precondition Failed
-                description: The request has not been performed because one of the preconditions is not met
-                moreInfo: ""
-                error: []
-  /apis/{apiId}/graphql-schema:
-    get:
-      tags:
-        - APIs
-      summary: Get the Schema of a GraphQL API
-      description: |
-        This operation can be used to retrieve the Schema definition of a GraphQL API.
-      operationId: getAPIGraphQLSchema
-      parameters:
-        - name: apiId
-          in: path
-          description: |
-            **API ID** consisting of the **Name** of the API.
-          required: true
-          style: simple
-          explode: false
-          schema:
-            type: string
-        - name: Accept
-          in: header
-          description: |
-            Media types acceptable for the response. Default is application/json.
-          required: false
-          style: simple
-          explode: false
-          schema:
-            type: string
-            default: application/json
-      responses:
-        "200":
-          description: |
-            OK.
-            Requested GraphQL Schema DTO object belongs to the API
-          headers:
-            Content-Type:
-              description: |
-                The content type of the body.
-              style: simple
-              explode: false
-              schema:
-                type: string
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GraphQLSchema'
-        "404":
-          description: Not Found. The specified resource does not exist.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 404
-                message: Not Found
-                description: The specified resource does not exist
-                moreInfo: ""
-                error: []
-        "406":
-          description: Not Acceptable. The requested media type is not supported.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 406
-                message: Not Acceptable
-                description: The requested media type is not supported
-                moreInfo: ""
-                error: []
-    put:
-      tags:
-        - APIs
-      summary: Add a Schema to a GraphQL API
-      description: |
-        This operation can be used to add a GraphQL Schema definition to an existing GraphQL API.
-      operationId: updateAPIGraphQLSchema
-      parameters:
-        - name: apiId
-          in: path
-          description: |
-            **API ID** consisting of the **Name** of the API.
-          required: true
-          style: simple
-          explode: false
-          schema:
-            type: string
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/apiId_graphqlschema_body'
-        required: true
-      responses:
-        "200":
-          description: |
-            OK.
-            Successful response with updated schema definition
-          headers:
-            Location:
-              description: |
-                The URL of the newly created resource.
-              style: simple
-              explode: false
-              schema:
-                type: string
-            Content-Type:
-              description: |
-                The content type of the body.
-              style: simple
-              explode: false
-              schema:
-                type: string
-          content: {}
         "400":
           description: Bad Request. Invalid request or validation error.
           content:
@@ -1510,6 +1004,15 @@ paths:
           explode: true
           schema:
             type: string
+        - name: namespace
+          in: query
+          description: |
+            Required namespace in the K8s cluster
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
         - name: sortBy
           in: query
           description: |
@@ -1611,6 +1114,15 @@ paths:
         Get details of a service using the id of the service.
       operationId: getServiceById
       parameters:
+        - name: namespace
+          in: query
+          description: |
+            Required namespace in the K8s cluster
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
         - name: serviceId
           in: path
           description: name of the service
@@ -1684,6 +1196,15 @@ paths:
         Retrieve usage
       operationId: getServiceUsage
       parameters:
+        - name: namespace
+          in: query
+          description: |
+            Required namespace in the K8s cluster
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
         - name: serviceId
           in: path
           description: name of the service
@@ -1746,421 +1267,6 @@ paths:
                 code: 500
                 message: Internal Server Error
                 description: The server encountered an internal error. Please contact administrator.
-                moreInfo: ""
-                error: []
-  /gateways:
-    get:
-      tags:
-        - Gateways
-      summary: |
-        Retrieve/Search Gateways
-      description: |
-        This operation provides you a list of available Gateways qualifying under a given search condition.
-      operationId: getAllGateways
-      parameters:
-        - name: limit
-          in: query
-          description: |
-            Maximum size of resource array to return.
-          required: false
-          style: form
-          explode: true
-          schema:
-            type: integer
-            default: 25
-        - name: offset
-          in: query
-          description: |
-            Starting point within the complete list of items qualified.
-          required: false
-          style: form
-          explode: true
-          schema:
-            type: integer
-            default: 0
-        - name: sortBy
-          in: query
-          description: |
-            Criteria for sorting.
-          required: false
-          style: form
-          explode: true
-          schema:
-            type: string
-            default: createdTime
-            enum:
-              - apiName
-              - version
-              - createdTime
-              - status
-        - name: sortOrder
-          in: query
-          description: |
-            Order of sorting(ascending/descending).
-          required: false
-          style: form
-          explode: true
-          schema:
-            type: string
-            default: desc
-            enum:
-              - asc
-              - desc
-        - name: query
-          in: query
-          required: false
-          style: form
-          explode: true
-          schema:
-            type: string
-        - name: Accept
-          in: header
-          description: |
-            Media types acceptable for the response. Default is application/json.
-          required: false
-          style: simple
-          explode: false
-          schema:
-            type: string
-            default: application/json
-      responses:
-        "200":
-          description: |
-            OK.
-            List of Gateways is returned.
-          headers:
-            Content-Type:
-              description: The content type of the body.
-              style: simple
-              explode: false
-              schema:
-                type: string
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GatewayList'
-        "406":
-          description: Not Acceptable. The requested media type is not supported.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 406
-                message: Not Acceptable
-                description: The requested media type is not supported
-                moreInfo: ""
-                error: []
-    post:
-      tags:
-        - Gateways
-      summary: Create a New Gateway
-      description: |
-        This operation can be used to create a new Gateway specifying the details of the Gateway in the payload.
-      operationId: createGateway
-      parameters:
-        - name: openAPIVersion
-          in: query
-          description: Open api version
-          required: false
-          style: form
-          explode: true
-          schema:
-            type: string
-            default: v3
-            enum:
-              - v2
-              - v3
-      requestBody:
-        description: API object that needs to be added
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Gateway'
-        required: true
-      responses:
-        "201":
-          description: |
-            Created.
-            Successful response with the newly created object as entity in the body.
-            Location header contains URL of newly created entity.
-          headers:
-            Location:
-              description: |
-                The URL of the newly created resource.
-              style: simple
-              explode: false
-              schema:
-                type: string
-            Content-Type:
-              description: |
-                The content type of the body.
-              style: simple
-              explode: false
-              schema:
-                type: string
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Gateway'
-        "400":
-          description: Bad Request. Invalid request or validation error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 400
-                message: Bad Request
-                description: Invalid request or validation error
-                moreInfo: ""
-                error: []
-        "415":
-          description: Unsupported Media Type. The entity of the request was not in a supported format.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 415
-                message: Unsupported media type
-                description: The entity of the request was not in a supported format
-                moreInfo: ""
-                error: []
-  /gateways/{gatewayId}:
-    get:
-      tags:
-        - Gateways
-      summary: Get Details of an Gateway
-      description: |
-        Using this operation, you can retrieve complete details of a single API. You need to provide the Id of the API to retrive it.
-      operationId: getGateway
-      parameters:
-        - name: gatewayId
-          in: path
-          description: name of the gateway
-          required: true
-          style: simple
-          explode: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: |
-            OK.
-            Requested API is returned
-          headers:
-            Content-Type:
-              description: |
-                The content type of the body.
-              style: simple
-              explode: false
-              schema:
-                type: string
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Gateway'
-        "404":
-          description: Not Found. The specified resource does not exist.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 404
-                message: Not Found
-                description: The specified resource does not exist
-                moreInfo: ""
-                error: []
-        "406":
-          description: Not Acceptable. The requested media type is not supported.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 406
-                message: Not Acceptable
-                description: The requested media type is not supported
-                moreInfo: ""
-                error: []
-    put:
-      tags:
-        - Gateways
-      summary: Update an Gateway
-      description: |
-        This operation can be used to update an existing Gateway.
-        But the properties `name`, `version`, `context`, `provider`, `state` will not be changed by this operation.
-      operationId: updateGateway
-      parameters:
-        - name: gatewayId
-          in: path
-          description: name of the gateway
-          required: true
-          style: simple
-          explode: false
-          schema:
-            type: string
-      requestBody:
-        description: Gateway object that needs to be added
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Gateway'
-        required: true
-      responses:
-        "200":
-          description: |
-            OK.
-            Successful response with updated Gateway object
-          headers:
-            Location:
-              description: |
-                The URL of the newly created resource.
-              style: simple
-              explode: false
-              schema:
-                type: string
-            Content-Type:
-              description: |
-                The content type of the body.
-              style: simple
-              explode: false
-              schema:
-                type: string
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Gateway'
-        "400":
-          description: Bad Request. Invalid request or validation error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 400
-                message: Bad Request
-                description: Invalid request or validation error
-                moreInfo: ""
-                error: []
-        "403":
-          description: Forbidden. The request must be conditional but no condition has been specified.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 403
-                message: Forbidden
-                description: The request must be conditional but no condition has been specified
-                moreInfo: ""
-                error: []
-        "404":
-          description: Not Found. The specified resource does not exist.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 404
-                message: Not Found
-                description: The specified resource does not exist
-                moreInfo: ""
-                error: []
-        "409":
-          description: Conflict. Specified resource already exists.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 409
-                message: Conflict
-                description: Specified resource already exists
-                moreInfo: ""
-                error: []
-        "412":
-          description: Precondition Failed. The request has not been performed because one of the preconditions is not met.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 412
-                message: Precondition Failed
-                description: The request has not been performed because one of the preconditions is not met
-                moreInfo: ""
-                error: []
-    delete:
-      tags:
-        - Gateways
-      summary: Delete an Gateway
-      description: |
-        This operation can be used to delete an existing Gateway proving the Id of the Gateway.
-      operationId: deleteGateway
-      parameters:
-        - name: gatewayId
-          in: path
-          description: name of the gateway
-          required: true
-          style: simple
-          explode: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: |
-            OK.
-            Resource successfully deleted.
-          content: {}
-        "403":
-          description: Forbidden. The request must be conditional but no condition has been specified.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 403
-                message: Forbidden
-                description: The request must be conditional but no condition has been specified
-                moreInfo: ""
-                error: []
-        "404":
-          description: Not Found. The specified resource does not exist.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 404
-                message: Not Found
-                description: The specified resource does not exist
-                moreInfo: ""
-                error: []
-        "409":
-          description: Conflict. Specified resource already exists.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 409
-                message: Conflict
-                description: Specified resource already exists
-                moreInfo: ""
-                error: []
-        "412":
-          description: Precondition Failed. The request has not been performed because one of the preconditions is not met.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 412
-                message: Precondition Failed
-                description: The request has not been performed because one of the preconditions is not met
                 moreInfo: ""
                 error: []
   /policies:
@@ -2266,69 +1372,6 @@ paths:
                 description: The requested media type is not supported
                 moreInfo: ""
                 error: []
-    post:
-      tags:
-        - Policies
-      summary: Create a New Policy
-      description: |
-        This operation can be used to create a new Gateway specifying the details of the Gateway in the payload.
-      operationId: createPolicy
-      requestBody:
-        description: Policy that needs to be added
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MediationPolicy'
-        required: true
-      responses:
-        "201":
-          description: |
-            Created.
-            Successful response with the newly created object as entity in the body.
-            Location header contains URL of newly created entity.
-          headers:
-            Location:
-              description: |
-                The URL of the newly created resource.
-              style: simple
-              explode: false
-              schema:
-                type: string
-            Content-Type:
-              description: |
-                The content type of the body.
-              style: simple
-              explode: false
-              schema:
-                type: string
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Gateway'
-        "400":
-          description: Bad Request. Invalid request or validation error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 400
-                message: Bad Request
-                description: Invalid request or validation error
-                moreInfo: ""
-                error: []
-        "415":
-          description: Unsupported Media Type. The entity of the request was not in a supported format.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 415
-                message: Unsupported media type
-                description: The entity of the request was not in a supported format
-                moreInfo: ""
-                error: []
   /policies/{mediationPolicyId}:
     get:
       tags:
@@ -2375,145 +1418,6 @@ paths:
                 description: The specified resource does not exist
                 moreInfo: ""
                 error: []
-        "406":
-          description: Not Acceptable. The requested media type is not supported.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 406
-                message: Not Acceptable
-                description: The requested media type is not supported
-                moreInfo: ""
-                error: []
-    delete:
-      tags:
-        - Policies
-      summary: Delete a Policy
-      description: |
-        This operation can be used to delete an existing Policy proving the Id of the Policy.
-      operationId: deletePolicy
-      parameters:
-        - name: mediationPolicyId
-          in: path
-          description: name of the gateway
-          required: true
-          style: simple
-          explode: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: |
-            OK.
-            Resource successfully deleted.
-          content: {}
-        "403":
-          description: Forbidden. The request must be conditional but no condition has been specified.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 403
-                message: Forbidden
-                description: The request must be conditional but no condition has been specified
-                moreInfo: ""
-                error: []
-        "404":
-          description: Not Found. The specified resource does not exist.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 404
-                message: Not Found
-                description: The specified resource does not exist
-                moreInfo: ""
-                error: []
-        "409":
-          description: Conflict. Specified resource already exists.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 409
-                message: Conflict
-                description: Specified resource already exists
-                moreInfo: ""
-                error: []
-        "412":
-          description: Precondition Failed. The request has not been performed because one of the preconditions is not met.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: 412
-                message: Precondition Failed
-                description: The request has not been performed because one of the preconditions is not met
-                moreInfo: ""
-                error: []
-  /search:
-    get:
-      tags:
-        - Unified Search
-      summary: |
-        Retrieve/Search APIs and API Documents by Content
-      description: |
-        This operation provides you a list of available APIs and API Documents qualifying the given keyword match.
-      operationId: search
-      parameters:
-        - name: limit
-          in: query
-          description: |
-            Maximum size of resource array to return.
-          required: false
-          style: form
-          explode: true
-          schema:
-            type: integer
-            default: 25
-        - name: offset
-          in: query
-          description: |
-            Starting point within the complete list of items qualified.
-          required: false
-          style: form
-          explode: true
-          schema:
-            type: integer
-            default: 0
-        - name: query
-          in: query
-          description: |
-            **Search**.
-            
-            You can search by proving a keyword.
-          required: false
-          style: form
-          explode: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: |
-            OK.
-            List of qualifying APIs and API documents is returned.
-          headers:
-            Content-Type:
-              description: The content type of the body.
-              style: simple
-              explode: false
-              schema:
-                type: string
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SearchResultList'
         "406":
           description: Not Acceptable. The requested media type is not supported.
           content:
@@ -2603,17 +1507,6 @@ components:
             - SSE
             - WEBHOOK
             - ASYNC
-        mediationPolicies:
-          type: array
-          example:
-            - name: add_header
-              type: in
-            - name: remove_header
-              type: out
-            - name: add_failed_status_code
-              type: fault
-          items:
-            $ref: '#/components/schemas/MediationPolicy'
         endpointConfig:
           type: object
           properties: {}
@@ -2641,12 +1534,12 @@ components:
           example:
             - target: /order/{orderId}
               verb: POST
-              authType: Application & Application User
-              throttlingPolicy: Unlimited
+              authTypeEnabled: true
+              throttlingPolicy: 1000
             - target: /menu
               verb: GET
-              authType: Application & Application User
-              throttlingPolicy: Unlimited
+              authTypeEnabled: false
+              throttlingPolicy: 1000
           items:
             $ref: '#/components/schemas/APIOperations'
         serviceInfo:
@@ -2696,26 +1589,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OperationPolicy'
-    AsyncAPISpecificationValidationResponse:
-      title: AsyncAPI Specification Validation Response
-      required:
-        - isValid
-      type: object
-      properties:
-        isValid:
-          type: boolean
-          description: This attribute declares whether this definition is valid or not.
-          example: true
-        content:
-          type: string
-          description: AsyncAPI specification content
-        info:
-          $ref: '#/components/schemas/AsyncAPISpecificationValidationResponse_info'
-        errors:
-          type: array
-          description: If there are more than one error list them out. For example, list out validation error by each field.
-          items:
-            $ref: '#/components/schemas/ErrorListItem'
     OperationPolicy:
       title: API Operation Policy
       required:
@@ -2767,9 +1640,6 @@ components:
         type:
           type: string
           example: in
-        shared:
-          type: boolean
-          example: true
     Error:
       title: Error object returned with 4XX HTTP Status
       required:
@@ -2815,8 +1685,8 @@ components:
           type: string
           description: |
             A detail description about the error message.
-    OpenAPIDefinitionValidationResponse:
-      title: OpenAPI Definition Validation Response
+    APIDefinitionValidationResponse:
+      title: API Definition Validation Response
       required:
         - isValid
       type: object
@@ -2831,7 +1701,7 @@ components:
           description: |
             OpenAPI definition content.
         info:
-          $ref: '#/components/schemas/OpenAPIDefinitionValidationResponse_info'
+          $ref: '#/components/schemas/APIDefinitionValidationResponse_info'
         errors:
           type: array
           description: |
@@ -2839,35 +1709,6 @@ components:
             For example, list out validation errors by each field.
           items:
             $ref: '#/components/schemas/ErrorListItem'
-    GraphQLValidationResponse:
-      title: GraphQL API definition validation Response
-      required:
-        - errorMessage
-        - isValid
-      type: object
-      properties:
-        isValid:
-          type: boolean
-          description: |
-            This attribute declares whether this definition is valid or not.
-          example: true
-        errorMessage:
-          type: string
-    SearchResultList:
-      title: Unified Search Result List
-      type: object
-      properties:
-        count:
-          type: integer
-          description: |
-            Number of results returned.
-          example: 1
-        list:
-          type: array
-          items:
-            type: object
-        pagination:
-          $ref: '#/components/schemas/Pagination'
     SearchResult:
       title: Search Result
       required:
@@ -2885,28 +1726,6 @@ components:
           description: Accepted values are HTTP, WS, GRAPHQL
       discriminator:
         propertyName: name
-    APISearchResult:
-      title: API Result
-      allOf:
-        - $ref: '#/components/schemas/SearchResult'
-        - type: object
-          properties:
-            description:
-              type: string
-              description: A brief description about the API
-              example: A calculator API that supports basic operations
-            context:
-              type: string
-              description: A string that represents the context of the user's request
-              example: CalculatorAPI
-            contextTemplate:
-              type: string
-              description: The templated context of the API
-              example: CalculatorAPI/{version}
-            version:
-              type: string
-              description: The version of the API
-              example: 1.0.0
     Pagination:
       title: Pagination
       type: object
@@ -3005,15 +1824,27 @@ components:
       title: Gateway object
       required:
         - name
+        - port
+        - protocol
       type: object
       properties:
         name:
-          maxLength: 50
+          maxLength: 255
           minLength: 1
           type: string
           description: Name of the Gateway
           example: PizzaOrdersGateway
-    apis_importopenapi_body:
+        protocol:
+          maxLength: 50
+          minLength: 1
+          type: string
+          description: Protocol of the Listener
+          example: HTTP
+        port:
+          type: number
+          description: Port of the Listener
+          example: 8080
+    apis_importdefinition_body:
       properties:
         file:
           type: string
@@ -3027,79 +1858,34 @@ components:
           description: Additional attributes specified as a stringified JSON with API's schema
         inlineAPIDefinition:
           type: string
-          description: Inline content of the OpenAPI definition
-    apis_importgraphqlschema_body:
+          description: Inline content of the API definition
+    apis_validatedefinition_body:
       properties:
+        url:
+          type: string
+          description: API definition definition url
+        file:
+          type: string
+          description: API definition as a file
+          format: binary
         type:
           type: string
-          description: Definition type to upload
-        file:
-          type: string
-          description: Definition to uploads a file
-          format: binary
-        additionalProperties:
-          type: string
-          description: Additional attributes specified as a stringified JSON with API's schema
-    apis_validateopenapi_body:
-      properties:
-        url:
-          type: string
-          description: OpenAPI definition url
-        file:
-          type: string
-          description: OpenAPI definition as a file
-          format: binary
+          description: API definition type - OpenAPI/AsyncAPI/GraphQL
         inlineAPIDefinition:
           type: string
-          description: Inline content of the OpenAPI definition
-    apis_validateasyncapi_body:
-      properties:
-        url:
-          type: string
-          description: AsyncAPI definition url
-        file:
-          type: string
-          description: AsyncAPI definition as a file
-          format: binary
-    apis_validategraphqlschema_body:
-      required:
-        - file
-      properties:
-        file:
-          type: string
-          description: Definition to upload as a file
-          format: binary
-    apiId_swagger_body:
+          description: Inline content of the API definition
+    apiId_definition_body:
       properties:
         apiDefinition:
           type: string
-          description: Swagger definition of the API
+          description: API definition of the API
         url:
           type: string
-          description: Swagger definition URL of the API
+          description: API definition URL of the API
         file:
           type: string
-          description: Swagger definitio as a file
+          description: API definitio as a file
           format: binary
-    apiId_asyncapi_body:
-      properties:
-        apiDefinition:
-          type: string
-          description: AsyncAPI definition of the API
-        url:
-          type: string
-          description: AsyncAPI definition URL of the API
-        file:
-          type: string
-          description: AsyncAPI definition as a file
-          format: binary
-    apiId_graphqlschema_body:
-      required:
-        - schemaDefinition
-      properties:
-        schemaDefinition:
-          type: string
-          description: schema definition of the GraphQL API
     apis_import_body:
       required:
         - file
@@ -3114,44 +1900,7 @@ components:
         name:
           type: string
           example: pizzashack-service
-    AsyncAPISpecificationValidationResponse_info:
-      type: object
-      properties:
-        name:
-          type: string
-          example: Streetlights
-        version:
-          type: string
-          example: 1.0.0
-        context:
-          type: string
-          example: /streetlights
-        description:
-          type: string
-          example: A sample API that uses a streetlights as an example to demonstrate AsyncAPI specifications
-        asyncAPIVersion:
-          type: string
-          example: "2.0"
-        protocol:
-          type: string
-          example: WEBSUB
-        endpoints:
-          type: array
-          description: contains host/servers specified in the AsyncAPI file/URL
-          items:
-            type: string
-            example: https://localhost:9443/am/sample/pizzashack/v3/api/
-        gatewayVendor:
-          type: string
-          example: wso2
-        asyncTransportProtocols:
-          type: array
-          description: contains available transports for an async API
-          items:
-            type: string
-            example: http
-      description: API definition information
-    OpenAPIDefinitionValidationResponse_info:
+    APIDefinitionValidationResponse_info:
       type: object
       properties:
         name:
@@ -3172,7 +1921,7 @@ components:
         endpoints:
           type: array
           description: |
-            contains host/servers specified in the OpenAPI file/URL
+            contains host/servers specified in the API definition file/URL
           items:
             type: string
             example: https://localhost:9443/am/sample/pizzashack/v3/api/
