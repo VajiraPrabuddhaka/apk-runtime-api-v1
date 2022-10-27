@@ -15,6 +15,7 @@ type HttpRouteInterface interface {
 	Create(ctx context.Context, route *v1alpha2.HTTPRoute) (*v1alpha2.HTTPRoute, error)
 	Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error)
 	Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error
+	Update(ctx context.Context, route *v1alpha2.HTTPRoute) (*v1alpha2.HTTPRoute, error)
 }
 
 type httpRouteClient struct {
@@ -80,4 +81,17 @@ func (c *httpRouteClient) Delete(ctx context.Context, name string, opts metav1.D
 		Body(&opts).
 		Do(ctx).
 		Error()
+}
+
+func (c *httpRouteClient) Update(ctx context.Context, httproute *v1alpha2.HTTPRoute) (*v1alpha2.HTTPRoute, error) {
+	result := v1alpha2.HTTPRoute{}
+	err := c.restClient.
+		Put().
+		Namespace(c.ns).
+		Resource("HTTPRoutes").
+		Body(httproute).
+		Do(ctx).
+		Into(&result)
+
+	return &result, err
 }

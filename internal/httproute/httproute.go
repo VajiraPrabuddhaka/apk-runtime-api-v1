@@ -13,6 +13,37 @@ func GetHttpRoutes(namespace string, clientSet *v1alpha2.HttpRouteV1Alpha1Client
 
 	if err != nil {
 		log.Printf("Error listing httproutes : %v", err)
+		return nil, err
 	}
 	return httpRoutes, nil
+}
+
+func GetHttpRoute(namespace string, name string, clientSet *v1alpha2.HttpRouteV1Alpha1Client) (*gw_v1alpha2.HTTPRoute, error) {
+	httpRoute, err := clientSet.HttpRoutes("default").Get(context.TODO(), name, metav1.GetOptions{})
+
+	if err != nil {
+		log.Printf("Error getting httproute : %v", err)
+		return nil, err
+	}
+	return httpRoute, nil
+}
+
+func CreateHttpRoute(namespace string, name string, route *gw_v1alpha2.HTTPRoute, clientSet *v1alpha2.HttpRouteV1Alpha1Client) (*gw_v1alpha2.HTTPRoute, error) {
+	httpRoute, err := clientSet.HttpRoutes(namespace).Create(context.TODO(), route)
+
+	if err != nil {
+		log.Printf("Error getting httproute : %v", err)
+		return nil, err
+	}
+	return httpRoute, err
+}
+
+func UpdateHttpRoute(namespace string, name string, route *gw_v1alpha2.HTTPRoute, clientSet *v1alpha2.HttpRouteV1Alpha1Client) (*gw_v1alpha2.HTTPRoute, error) {
+	httpRoute, err := clientSet.HttpRoutes(namespace).Update(context.TODO(), route)
+
+	if err != nil {
+		log.Printf("Error updating httproute : %v", err)
+		return nil, err
+	}
+	return httpRoute, err
 }

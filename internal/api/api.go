@@ -7,7 +7,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func GetAPI(namespace string, id string, clientSet *kubernetes.Clientset) gen.API {
+func GetAPI(namespace string, id string, clientSet *kubernetes.Clientset) (gen.API, error) {
 	//ToDo write logic to get API from k8s API server
 
 	//mocking the response
@@ -22,10 +22,10 @@ func GetAPI(namespace string, id string, clientSet *kubernetes.Clientset) gen.AP
 		ServiceInfo:       nil,
 		Type:              nil,
 		Version:           "1.0.0",
-	}
+	}, nil
 }
 
-func GetAPIs(namespace string, offset int, limit int, clientSet *kubernetes.Clientset) gen.APIList {
+func GetAPIs(namespace string, offset int, limit int, clientSet *kubernetes.Clientset) (gen.APIList, error) {
 	//ToDo write logic to get API from k8s API server
 
 	return gen.APIList{
@@ -38,7 +38,7 @@ func GetAPIs(namespace string, offset int, limit int, clientSet *kubernetes.Clie
 			Previous: nil,
 			Total:    nil,
 		},
-	}
+	}, nil
 }
 
 func CreateAPI(api gen.API, oasVersion string) (gen.API, error) {
