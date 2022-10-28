@@ -5,7 +5,6 @@ go 1.18
 require (
 	github.com/deepmap/oapi-codegen v1.11.0
 	github.com/getkin/kin-openapi v0.106.0
-	github.com/ghodss/yaml v1.0.0
 	github.com/go-chi/chi/v5 v5.0.7
 	k8s.io/api v0.25.3
 	k8s.io/apimachinery v0.25.3
