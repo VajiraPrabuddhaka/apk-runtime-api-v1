@@ -3,6 +3,7 @@ package runtime
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/internal/cache"
 	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/internal/server/gen"
 	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/internal/service"
 	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/pkg/k8s/httproute/gateway/clientset/v1alpha2"
@@ -13,6 +14,7 @@ import (
 type Server struct {
 	ClientSetK8s      *kubernetes.Clientset
 	ClientSetV1alpha1 *v1alpha2.HttpRouteV1Alpha1Client
+	ApiCache          *cache.APILocalCache
 }
 
 func (r2 Server) ImportAPIDefinition(w http.ResponseWriter, r *http.Request) {
@@ -37,6 +39,7 @@ func (r2 Server) UpdateAPIDefinition(w http.ResponseWriter, r *http.Request, api
 
 func (r2 Server) GetAllAPIs(w http.ResponseWriter, r *http.Request, params gen.GetAllAPIsParams) {
 	//TODO implement me
+
 	panic("implement me")
 }
 

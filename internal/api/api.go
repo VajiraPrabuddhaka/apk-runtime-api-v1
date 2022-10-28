@@ -12,16 +12,15 @@ func GetAPI(namespace string, id string, clientSet *kubernetes.Clientset) (gen.A
 
 	//mocking the response
 	return gen.API{
-		Context:           "test",
-		CreatedTime:       nil,
-		EndpointConfig:    nil,
-		LastUpdatedTime:   nil,
-		MediationPolicies: nil,
-		Name:              "TestAPI",
-		Operations:        nil,
-		ServiceInfo:       nil,
-		Type:              nil,
-		Version:           "1.0.0",
+		Context:         "test",
+		CreatedTime:     nil,
+		EndpointConfig:  nil,
+		LastUpdatedTime: nil,
+		Name:            "TestAPI",
+		Operations:      nil,
+		ServiceInfo:     nil,
+		Type:            nil,
+		Version:         "1.0.0",
 	}, nil
 }
 
@@ -46,16 +45,15 @@ func CreateAPI(api gen.API, oasVersion string) (gen.API, error) {
 	// 1. Generate swagger
 	// 2. create k8s artifacts
 	return gen.API{
-		Context:           "",
-		CreatedTime:       nil,
-		EndpointConfig:    nil,
-		LastUpdatedTime:   nil,
-		MediationPolicies: nil,
-		Name:              "",
-		Operations:        nil,
-		ServiceInfo:       nil,
-		Type:              nil,
-		Version:           "",
+		Context:         "",
+		CreatedTime:     nil,
+		EndpointConfig:  nil,
+		LastUpdatedTime: nil,
+		Name:            "",
+		Operations:      nil,
+		ServiceInfo:     nil,
+		Type:            nil,
+		Version:         "",
 	}, nil
 }
 

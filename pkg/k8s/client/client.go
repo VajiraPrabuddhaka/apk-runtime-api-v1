@@ -2,6 +2,7 @@ package client
 
 import (
 	"flag"
+	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/pkg/k8s/api/v1alpha1"
 	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/pkg/k8s/httproute/gateway/clientset/v1alpha2"
 	"path/filepath"
 
@@ -59,7 +60,7 @@ func GetOutClusterClientSetKubernetes() *kubernetes.Clientset {
 	return clientset
 }
 
-func GetOutClusterClientSetV1alpha1() *v1alpha2.HttpRouteV1Alpha1Client {
+func GetOutClusterHttpRouteClientSetV1alpha1() *v1alpha2.HttpRouteV1Alpha1Client {
 
 	// use the current context in kubeconfig
 	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
@@ -70,6 +71,18 @@ func GetOutClusterClientSetV1alpha1() *v1alpha2.HttpRouteV1Alpha1Client {
 	// create the clientset
 	clientset, err := v1alpha2.NewForConfig(config)
 
+	//TODO: handle error
+	return clientset
+}
+
+func GetOutClusterAPIClientSetV1alpha1() *v1alpha1.APIV1Alpha1Client {
+	// use the current context in kubeconfig
+	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	if err != nil {
+		panic(err.Error())
+	}
+	// create the clientset
+	clientset, err := v1alpha1.NewForConfig(config)
 	//TODO: handle error
 	return clientset
 }
