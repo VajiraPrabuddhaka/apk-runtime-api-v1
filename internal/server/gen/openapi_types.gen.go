@@ -36,12 +36,11 @@ type API struct {
 	//        "url": "https://pizzashack-service:8080/am/sample/pizzashack/v3/api/"
 	//     }
 	//   }
-	EndpointConfig    *map[string]interface{} `json:"endpointConfig,omitempty"`
-	LastUpdatedTime   *string            `json:"lastUpdatedTime,omitempty"`
-	MediationPolicies *[]MediationPolicy `json:"mediationPolicies,omitempty"`
-	Name              string             `json:"name"`
-	Operations        *[]APIOperations   `json:"operations,omitempty"`
-	ServiceInfo       *APIServiceInfo    `json:"serviceInfo,omitempty"`
+	EndpointConfig  *map[string]interface{} `json:"endpointConfig,omitempty"`
+	LastUpdatedTime *string                 `json:"lastUpdatedTime,omitempty"`
+	Name            string                  `json:"name"`
+	Operations      *[]APIOperations        `json:"operations,omitempty"`
+	ServiceInfo     *APIServiceInfo         `json:"serviceInfo,omitempty"`
 
 	// The api creation type to be used. Accepted values are HTTP, WS, GRAPHQL, WEBSUB, SSE, WEBHOOK, ASYNC
 	Type    *APIType `json:"type,omitempty"`
@@ -50,6 +49,34 @@ type API struct {
 
 // The api creation type to be used. Accepted values are HTTP, WS, GRAPHQL, WEBSUB, SSE, WEBHOOK, ASYNC
 type APIType string
+
+// APIDefinitionValidationResponse defines model for APIDefinitionValidationResponse.
+type APIDefinitionValidationResponse struct {
+	// OpenAPI definition content.
+	Content *string `json:"content,omitempty"`
+
+	// If there are more than one error list them out.
+	// For example, list out validation errors by each field.
+	Errors *[]ErrorListItem `json:"errors,omitempty"`
+
+	// API definition information
+	Info *APIDefinitionValidationResponseInfo `json:"info,omitempty"`
+
+	// This attribute declares whether this definition is valid or not.
+	IsValid bool `json:"isValid"`
+}
+
+// API definition information
+type APIDefinitionValidationResponseInfo struct {
+	Context     *string `json:"context,omitempty"`
+	Description *string `json:"description,omitempty"`
+
+	// contains host/servers specified in the API definition file/URL
+	Endpoints      *[]string `json:"endpoints,omitempty"`
+	Name           *string   `json:"name,omitempty"`
+	OpenAPIVersion *string   `json:"openAPIVersion,omitempty"`
+	Version        *string   `json:"version,omitempty"`
+}
 
 // APIInfo defines model for APIInfo.
 type APIInfo struct {
@@ -92,38 +119,6 @@ type APIServiceInfo struct {
 	Name *string `json:"name,omitempty"`
 }
 
-// AsyncAPISpecificationValidationResponse defines model for AsyncAPISpecificationValidationResponse.
-type AsyncAPISpecificationValidationResponse struct {
-	// AsyncAPI specification content
-	Content *string `json:"content,omitempty"`
-
-	// If there are more than one error list them out. For example, list out validation error by each field.
-	Errors *[]ErrorListItem `json:"errors,omitempty"`
-
-	// API definition information
-	Info *AsyncAPISpecificationValidationResponseInfo `json:"info,omitempty"`
-
-	// This attribute declares whether this definition is valid or not.
-	IsValid bool `json:"isValid"`
-}
-
-// API definition information
-type AsyncAPISpecificationValidationResponseInfo struct {
-	AsyncAPIVersion *string `json:"asyncAPIVersion,omitempty"`
-
-	// contains available transports for an async API
-	AsyncTransportProtocols *[]string `json:"asyncTransportProtocols,omitempty"`
-	Context                 *string   `json:"context,omitempty"`
-	Description             *string   `json:"description,omitempty"`
-
-	// contains host/servers specified in the AsyncAPI file/URL
-	Endpoints     *[]string `json:"endpoints,omitempty"`
-	GatewayVendor *string   `json:"gatewayVendor,omitempty"`
-	Name          *string   `json:"name,omitempty"`
-	Protocol      *string   `json:"protocol,omitempty"`
-	Version       *string   `json:"version,omitempty"`
-}
-
 // Error defines model for Error.
 type Error struct {
 	Code int64 `json:"code"`
@@ -153,71 +148,16 @@ type ErrorListItem struct {
 	Message string `json:"message"`
 }
 
-// Gateway defines model for Gateway.
-type Gateway struct {
-	// Name of the Gateway
-	Name string `json:"name"`
-}
-
-// GatewayList defines model for GatewayList.
-type GatewayList struct {
-	List       *[]Gateway  `json:"list,omitempty"`
-	Pagination *Pagination `json:"pagination,omitempty"`
-}
-
-// GraphQLSchema defines model for GraphQLSchema.
-type GraphQLSchema struct {
-	Name             string  `json:"name"`
-	SchemaDefinition *string `json:"schemaDefinition,omitempty"`
-}
-
-// GraphQLValidationResponse defines model for GraphQLValidationResponse.
-type GraphQLValidationResponse struct {
-	ErrorMessage string `json:"errorMessage"`
-
-	// This attribute declares whether this definition is valid or not.
-	IsValid bool `json:"isValid"`
-}
-
 // MediationPolicy defines model for MediationPolicy.
 type MediationPolicy struct {
-	Name   string  `json:"name"`
-	Shared *bool   `json:"shared,omitempty"`
-	Type   *string `json:"type,omitempty"`
+	Name string  `json:"name"`
+	Type *string `json:"type,omitempty"`
 }
 
 // MediationPolicyList defines model for MediationPolicyList.
 type MediationPolicyList struct {
 	List       *[]MediationPolicy `json:"list,omitempty"`
 	Pagination *Pagination        `json:"pagination,omitempty"`
-}
-
-// OpenAPIDefinitionValidationResponse defines model for OpenAPIDefinitionValidationResponse.
-type OpenAPIDefinitionValidationResponse struct {
-	// OpenAPI definition content.
-	Content *string `json:"content,omitempty"`
-
-	// If there are more than one error list them out.
-	// For example, list out validation errors by each field.
-	Errors *[]ErrorListItem `json:"errors,omitempty"`
-
-	// API definition information
-	Info *OpenAPIDefinitionValidationResponseInfo `json:"info,omitempty"`
-
-	// This attribute declares whether this definition is valid or not.
-	IsValid bool `json:"isValid"`
-}
-
-// API definition information
-type OpenAPIDefinitionValidationResponseInfo struct {
-	Context     *string `json:"context,omitempty"`
-	Description *string `json:"description,omitempty"`
-
-	// contains host/servers specified in the OpenAPI file/URL
-	Endpoints      *[]string `json:"endpoints,omitempty"`
-	Name           *string   `json:"name,omitempty"`
-	OpenAPIVersion *string   `json:"openAPIVersion,omitempty"`
-	Version        *string   `json:"version,omitempty"`
 }
 
 // OperationPolicy defines model for OperationPolicy.
@@ -251,25 +191,17 @@ type Pagination struct {
 // PortMapping defines model for PortMapping.
 type PortMapping struct {
 	Name       string  `json:"name"`
-	Port       int32 `json:"port"`
-	Protocol   *string  `json:"protocol"`
-	Targetport int32 `json:"targetport"`
-}
-
-// SearchResultList defines model for SearchResultList.
-type SearchResultList struct {
-	// Number of results returned.
-	Count      *int                      `json:"count,omitempty"`
-	List       *[]map[string]interface{} `json:"list,omitempty"`
-	Pagination *Pagination               `json:"pagination,omitempty"`
+	Port       int32   `json:"port"`
+	Protocol   *string `json:"protocol,omitempty"`
+	Targetport int32   `json:"targetport"`
 }
 
 // Service defines model for Service.
 type Service struct {
-	Name        string        `json:"name"`
-	Namespace   string        `json:"namespace"`
-	Portmapping []*PortMapping `json:"portmapping"`
-	Type        string        `json:"type"`
+	Name        string         `json:"name"`
+	Namespace   string         `json:"namespace"`
+	Portmapping *[]PortMapping `json:"portmapping,omitempty"`
+	Type        string         `json:"type"`
 }
 
 // ServiceList defines model for ServiceList.
@@ -278,33 +210,15 @@ type ServiceList struct {
 	Pagination *Pagination `json:"pagination,omitempty"`
 }
 
-// ApiIdAsyncapiBody defines model for apiId_asyncapi_body.
-type ApiIdAsyncapiBody struct {
-	// AsyncAPI definition of the API
+// ApiIdDefinitionBody defines model for apiId_definition_body.
+type ApiIdDefinitionBody struct {
+	// API definition of the API
 	ApiDefinition *string `json:"apiDefinition,omitempty"`
 
-	// AsyncAPI definition as a file
+	// API definitio as a file
 	File *string `json:"file,omitempty"`
 
-	// AsyncAPI definition URL of the API
-	Url *string `json:"url,omitempty"`
-}
-
-// ApiIdGraphqlschemaBody defines model for apiId_graphqlschema_body.
-type ApiIdGraphqlschemaBody struct {
-	// schema definition of the GraphQL API
-	SchemaDefinition string `json:"schemaDefinition"`
-}
-
-// ApiIdSwaggerBody defines model for apiId_swagger_body.
-type ApiIdSwaggerBody struct {
-	// Swagger definition of the API
-	ApiDefinition *string `json:"apiDefinition,omitempty"`
-
-	// Swagger definitio as a file
-	File *string `json:"file,omitempty"`
-
-	// Swagger definition URL of the API
+	// API definition URL of the API
 	Url *string `json:"url,omitempty"`
 }
 
@@ -314,57 +228,33 @@ type ApisImportBody struct {
 	File string `json:"file"`
 }
 
-// ApisImportgraphqlschemaBody defines model for apis_importgraphqlschema_body.
-type ApisImportgraphqlschemaBody struct {
-	// Additional attributes specified as a stringified JSON with API's schema
-	AdditionalProperties *string `json:"additionalProperties,omitempty"`
-
-	// Definition to uploads a file
-	File *string `json:"file,omitempty"`
-
-	// Definition type to upload
-	Type *string `json:"type,omitempty"`
-}
-
-// ApisImportopenapiBody defines model for apis_importopenapi_body.
-type ApisImportopenapiBody struct {
+// ApisImportdefinitionBody defines model for apis_importdefinition_body.
+type ApisImportdefinitionBody struct {
 	// Additional attributes specified as a stringified JSON with API's schema
 	AdditionalProperties *string `json:"additionalProperties,omitempty"`
 
 	// Definition to upload as a file
 	File *string `json:"file,omitempty"`
 
-	// Inline content of the OpenAPI definition
+	// Inline content of the API definition
 	InlineAPIDefinition *string `json:"inlineAPIDefinition,omitempty"`
 
 	// Definition url
 	Url *string `json:"url,omitempty"`
 }
 
-// ApisValidateasyncapiBody defines model for apis_validateasyncapi_body.
-type ApisValidateasyncapiBody struct {
-	// AsyncAPI definition as a file
+// ApisValidatedefinitionBody defines model for apis_validatedefinition_body.
+type ApisValidatedefinitionBody struct {
+	// API definition as a file
 	File *string `json:"file,omitempty"`
 
-	// AsyncAPI definition url
-	Url *string `json:"url,omitempty"`
-}
-
-// ApisValidategraphqlschemaBody defines model for apis_validategraphqlschema_body.
-type ApisValidategraphqlschemaBody struct {
-	// Definition to upload as a file
-	File string `json:"file"`
-}
-
-// ApisValidateopenapiBody defines model for apis_validateopenapi_body.
-type ApisValidateopenapiBody struct {
-	// OpenAPI definition as a file
-	File *string `json:"file,omitempty"`
-
-	// Inline content of the OpenAPI definition
+	// Inline content of the API definition
 	InlineAPIDefinition *string `json:"inlineAPIDefinition,omitempty"`
 
-	// OpenAPI definition url
+	// API definition type - OpenAPI/AsyncAPI/GraphQL
+	Type *string `json:"type,omitempty"`
+
+	// API definition definition url
 	Url *string `json:"url,omitempty"`
 }
 
@@ -396,15 +286,6 @@ type GetAllAPIsParamsSortOrder string
 // CreateAPIJSONBody defines parameters for CreateAPI.
 type CreateAPIJSONBody = API
 
-// CreateAPIParams defines parameters for CreateAPI.
-type CreateAPIParams struct {
-	// Open api version
-	OpenAPIVersion *CreateAPIParamsOpenAPIVersion `form:"openAPIVersion,omitempty" json:"openAPIVersion,omitempty"`
-}
-
-// CreateAPIParamsOpenAPIVersion defines parameters for CreateAPI.
-type CreateAPIParamsOpenAPIVersion string
-
 // ExportAPIParams defines parameters for ExportAPI.
 type ExportAPIParams struct {
 	// Name of the API
@@ -429,19 +310,13 @@ type ImportAPIParams struct {
 	Overwrite *bool `form:"overwrite,omitempty" json:"overwrite,omitempty"`
 }
 
-// ImportServiceFromCatalogJSONBody defines parameters for ImportServiceFromCatalog.
-type ImportServiceFromCatalogJSONBody = API
+// ImportServiceJSONBody defines parameters for ImportService.
+type ImportServiceJSONBody = API
 
-// ImportServiceFromCatalogParams defines parameters for ImportServiceFromCatalog.
-type ImportServiceFromCatalogParams struct {
+// ImportServiceParams defines parameters for ImportService.
+type ImportServiceParams struct {
 	// ID of service that should be imported from Service Catalog
 	ServiceKey string `form:"serviceKey" json:"serviceKey"`
-}
-
-// ValidateAsyncAPISpecificationParams defines parameters for ValidateAsyncAPISpecification.
-type ValidateAsyncAPISpecificationParams struct {
-	// Specify whether to return the full content of the AsyncAPI specification in the response. This is only applicable when using url based validation
-	ReturnContent *bool `form:"returnContent,omitempty" json:"returnContent,omitempty"`
 }
 
 // ValidateOpenAPIDefinitionParams defines parameters for ValidateOpenAPIDefinition.
@@ -453,52 +328,6 @@ type ValidateOpenAPIDefinitionParams struct {
 
 // UpdateAPIJSONBody defines parameters for UpdateAPI.
 type UpdateAPIJSONBody = API
-
-// GetAPIGraphQLSchemaParams defines parameters for GetAPIGraphQLSchema.
-type GetAPIGraphQLSchemaParams struct {
-	// Media types acceptable for the response. Default is application/json.
-	Accept *string `json:"Accept,omitempty"`
-}
-
-// GetAllGatewaysParams defines parameters for GetAllGateways.
-type GetAllGatewaysParams struct {
-	// Maximum size of resource array to return.
-	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
-
-	// Starting point within the complete list of items qualified.
-	Offset *int `form:"offset,omitempty" json:"offset,omitempty"`
-
-	// Criteria for sorting.
-	SortBy *GetAllGatewaysParamsSortBy `form:"sortBy,omitempty" json:"sortBy,omitempty"`
-
-	// Order of sorting(ascending/descending).
-	SortOrder *GetAllGatewaysParamsSortOrder `form:"sortOrder,omitempty" json:"sortOrder,omitempty"`
-	Query     *string                        `form:"query,omitempty" json:"query,omitempty"`
-
-	// Media types acceptable for the response. Default is application/json.
-	Accept *string `json:"Accept,omitempty"`
-}
-
-// GetAllGatewaysParamsSortBy defines parameters for GetAllGateways.
-type GetAllGatewaysParamsSortBy string
-
-// GetAllGatewaysParamsSortOrder defines parameters for GetAllGateways.
-type GetAllGatewaysParamsSortOrder string
-
-// CreateGatewayJSONBody defines parameters for CreateGateway.
-type CreateGatewayJSONBody = Gateway
-
-// CreateGatewayParams defines parameters for CreateGateway.
-type CreateGatewayParams struct {
-	// Open api version
-	OpenAPIVersion *CreateGatewayParamsOpenAPIVersion `form:"openAPIVersion,omitempty" json:"openAPIVersion,omitempty"`
-}
-
-// CreateGatewayParamsOpenAPIVersion defines parameters for CreateGateway.
-type CreateGatewayParamsOpenAPIVersion string
-
-// UpdateGatewayJSONBody defines parameters for UpdateGateway.
-type UpdateGatewayJSONBody = Gateway
 
 // GetAllPoliciesParams defines parameters for GetAllPolicies.
 type GetAllPoliciesParams struct {
@@ -525,27 +354,13 @@ type GetAllPoliciesParamsSortBy string
 // GetAllPoliciesParamsSortOrder defines parameters for GetAllPolicies.
 type GetAllPoliciesParamsSortOrder string
 
-// CreatePolicyJSONBody defines parameters for CreatePolicy.
-type CreatePolicyJSONBody = MediationPolicy
-
-// SearchParams defines parameters for Search.
-type SearchParams struct {
-	// Maximum size of resource array to return.
-	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
-
-	// Starting point within the complete list of items qualified.
-	Offset *int `form:"offset,omitempty" json:"offset,omitempty"`
-
-	// **Search**.
-	//
-	// You can search by proving a keyword.
-	Query *string `form:"query,omitempty" json:"query,omitempty"`
-}
-
 // SearchServicesParams defines parameters for SearchServices.
 type SearchServicesParams struct {
 	// Filter services by the name of the service
 	Name *string `form:"name,omitempty" json:"name,omitempty"`
+
+	// Required namespace in the K8s cluster
+	Namespace *string `form:"namespace,omitempty" json:"namespace,omitempty"`
 
 	// Criteria for sorting.
 	SortBy *SearchServicesParamsSortBy `form:"sortBy,omitempty" json:"sortBy,omitempty"`
@@ -566,23 +381,26 @@ type SearchServicesParamsSortBy string
 // SearchServicesParamsSortOrder defines parameters for SearchServices.
 type SearchServicesParamsSortOrder string
 
+// GetServiceByIdParams defines parameters for GetServiceById.
+type GetServiceByIdParams struct {
+	// Required namespace in the K8s cluster
+	Namespace *string `form:"namespace,omitempty" json:"namespace,omitempty"`
+}
+
+// GetServiceUsageParams defines parameters for GetServiceUsage.
+type GetServiceUsageParams struct {
+	// Required namespace in the K8s cluster
+	Namespace *string `form:"namespace,omitempty" json:"namespace,omitempty"`
+}
+
 // CreateAPIJSONRequestBody defines body for CreateAPI for application/json ContentType.
 type CreateAPIJSONRequestBody = CreateAPIJSONBody
 
-// ImportServiceFromCatalogJSONRequestBody defines body for ImportServiceFromCatalog for application/json ContentType.
-type ImportServiceFromCatalogJSONRequestBody = ImportServiceFromCatalogJSONBody
+// ImportServiceJSONRequestBody defines body for ImportService for application/json ContentType.
+type ImportServiceJSONRequestBody = ImportServiceJSONBody
 
 // UpdateAPIJSONRequestBody defines body for UpdateAPI for application/json ContentType.
 type UpdateAPIJSONRequestBody = UpdateAPIJSONBody
-
-// CreateGatewayJSONRequestBody defines body for CreateGateway for application/json ContentType.
-type CreateGatewayJSONRequestBody = CreateGatewayJSONBody
-
-// UpdateGatewayJSONRequestBody defines body for UpdateGateway for application/json ContentType.
-type UpdateGatewayJSONRequestBody = UpdateGatewayJSONBody
-
-// CreatePolicyJSONRequestBody defines body for CreatePolicy for application/json ContentType.
-type CreatePolicyJSONRequestBody = CreatePolicyJSONBody
 
 // Getter for additional properties for OperationPolicy_Parameters. Returns the specified
 // element and whether it was found

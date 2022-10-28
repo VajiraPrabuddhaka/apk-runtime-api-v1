@@ -18,33 +18,24 @@ type ServerInterface interface {
 	GetAllAPIs(w http.ResponseWriter, r *http.Request, params GetAllAPIsParams)
 	// Create a New API
 	// (POST /apis)
-	CreateAPI(w http.ResponseWriter, r *http.Request, params CreateAPIParams)
+	CreateAPI(w http.ResponseWriter, r *http.Request)
 	// Export an API
 	// (GET /apis/export)
 	ExportAPI(w http.ResponseWriter, r *http.Request, params ExportAPIParams)
 	// Import an API
 	// (POST /apis/import)
 	ImportAPI(w http.ResponseWriter, r *http.Request, params ImportAPIParams)
-	// Import a GraphQL SDL
-	// (POST /apis/import-graphql-schema)
-	ImportGraphQLSchema(w http.ResponseWriter, r *http.Request)
-	// Import an OpenAPI Definition
-	// (POST /apis/import-openapi)
-	ImportOpenAPIDefinition(w http.ResponseWriter, r *http.Request)
-	// Import a Service from Service Catalog
+	// Import an API Definition
+	// (POST /apis/import-definition)
+	ImportAPIDefinition(w http.ResponseWriter, r *http.Request)
+	// Create API from a Service
 	// (POST /apis/import-service)
-	ImportServiceFromCatalog(w http.ResponseWriter, r *http.Request, params ImportServiceFromCatalogParams)
+	ImportService(w http.ResponseWriter, r *http.Request, params ImportServiceParams)
 	// Check Given API Context Name already Exists
 	// (POST /apis/validate)
 	ValidateAPI(w http.ResponseWriter, r *http.Request)
-	// Validate an AsyncAPI Specification
-	// (POST /apis/validate-asyncapi)
-	ValidateAsyncAPISpecification(w http.ResponseWriter, r *http.Request, params ValidateAsyncAPISpecificationParams)
-	// Validate a GraphQL SDL
-	// (POST /apis/validate-graphql-schema)
-	ValidateGraphQLSchema(w http.ResponseWriter, r *http.Request)
 	// Validate an OpenAPI Definition
-	// (POST /apis/validate-openapi)
+	// (POST /apis/validate-definition)
 	ValidateOpenAPIDefinition(w http.ResponseWriter, r *http.Request, params ValidateOpenAPIDefinitionParams)
 	// Delete an API
 	// (DELETE /apis/{apiId})
@@ -55,63 +46,27 @@ type ServerInterface interface {
 	// Update an API
 	// (PUT /apis/{apiId})
 	UpdateAPI(w http.ResponseWriter, r *http.Request, apiId string)
-	// Get AsyncAPI definition
-	// (GET /apis/{apiId}/asyncapi)
-	GetApisApiIdAsyncapi(w http.ResponseWriter, r *http.Request, apiId string)
-	// Update AsyncAPI definition
-	// (PUT /apis/{apiId}/asyncapi)
-	PutApisApiIdAsyncapi(w http.ResponseWriter, r *http.Request, apiId string)
-	// Get the Schema of a GraphQL API
-	// (GET /apis/{apiId}/graphql-schema)
-	GetAPIGraphQLSchema(w http.ResponseWriter, r *http.Request, apiId string, params GetAPIGraphQLSchemaParams)
-	// Add a Schema to a GraphQL API
-	// (PUT /apis/{apiId}/graphql-schema)
-	UpdateAPIGraphQLSchema(w http.ResponseWriter, r *http.Request, apiId string)
-	// Get Swagger Definition
-	// (GET /apis/{apiId}/swagger)
-	GetAPISwagger(w http.ResponseWriter, r *http.Request, apiId string)
-	// Update Swagger Definition
-	// (PUT /apis/{apiId}/swagger)
-	UpdateAPISwagger(w http.ResponseWriter, r *http.Request, apiId string)
-	// Retrieve/Search Gateways
-	// (GET /gateways)
-	GetAllGateways(w http.ResponseWriter, r *http.Request, params GetAllGatewaysParams)
-	// Create a New Gateway
-	// (POST /gateways)
-	CreateGateway(w http.ResponseWriter, r *http.Request, params CreateGatewayParams)
-	// Delete an Gateway
-	// (DELETE /gateways/{gatewayId})
-	DeleteGateway(w http.ResponseWriter, r *http.Request, gatewayId string)
-	// Get Details of an Gateway
-	// (GET /gateways/{gatewayId})
-	GetGateway(w http.ResponseWriter, r *http.Request, gatewayId string)
-	// Update an Gateway
-	// (PUT /gateways/{gatewayId})
-	UpdateGateway(w http.ResponseWriter, r *http.Request, gatewayId string)
+	// Get API Definition
+	// (GET /apis/{apiId}/definition)
+	GetAPIDefinition(w http.ResponseWriter, r *http.Request, apiId string)
+	// Update API Definition
+	// (PUT /apis/{apiId}/definition)
+	UpdateAPIDefinition(w http.ResponseWriter, r *http.Request, apiId string)
 	// Retrieve/Search Policies
 	// (GET /policies)
 	GetAllPolicies(w http.ResponseWriter, r *http.Request, params GetAllPoliciesParams)
-	// Create a New Policy
-	// (POST /policies)
-	CreatePolicy(w http.ResponseWriter, r *http.Request)
-	// Delete a Policy
-	// (DELETE /policies/{mediationPolicyId})
-	DeletePolicy(w http.ResponseWriter, r *http.Request, mediationPolicyId string)
 	// Get Details of a Policy
 	// (GET /policies/{mediationPolicyId})
 	GetPolicy(w http.ResponseWriter, r *http.Request, mediationPolicyId string)
-	// Retrieve/Search APIs and API Documents by Content
-	// (GET /search)
-	Search(w http.ResponseWriter, r *http.Request, params SearchParams)
 	// Retrieve/search services
 	// (GET /services)
 	SearchServices(w http.ResponseWriter, r *http.Request, params SearchServicesParams)
 	// Get details of a service
 	// (GET /services/{serviceId})
-	GetServiceById(w http.ResponseWriter, r *http.Request, serviceId string)
+	GetServiceById(w http.ResponseWriter, r *http.Request, serviceId string, params GetServiceByIdParams)
 	// Retrieve the usage of service
 	// (GET /services/{serviceId}/usage)
-	GetServiceUsage(w http.ResponseWriter, r *http.Request, serviceId string)
+	GetServiceUsage(w http.ResponseWriter, r *http.Request, serviceId string, params GetServiceUsageParams)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -223,24 +178,8 @@ func (siw *ServerInterfaceWrapper) GetAllAPIs(w http.ResponseWriter, r *http.Req
 func (siw *ServerInterfaceWrapper) CreateAPI(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	var err error
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params CreateAPIParams
-
-	// ------------- Optional query parameter "openAPIVersion" -------------
-	if paramValue := r.URL.Query().Get("openAPIVersion"); paramValue != "" {
-
-	}
-
-	err = runtime.BindQueryParameter("form", true, false, "openAPIVersion", r.URL.Query(), &params.OpenAPIVersion)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "openAPIVersion", Err: err})
-		return
-	}
-
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.CreateAPI(w, r, params)
+		siw.Handler.CreateAPI(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -345,12 +284,12 @@ func (siw *ServerInterfaceWrapper) ImportAPI(w http.ResponseWriter, r *http.Requ
 	handler(w, r.WithContext(ctx))
 }
 
-// ImportGraphQLSchema operation middleware
-func (siw *ServerInterfaceWrapper) ImportGraphQLSchema(w http.ResponseWriter, r *http.Request) {
+// ImportAPIDefinition operation middleware
+func (siw *ServerInterfaceWrapper) ImportAPIDefinition(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ImportGraphQLSchema(w, r)
+		siw.Handler.ImportAPIDefinition(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -360,29 +299,14 @@ func (siw *ServerInterfaceWrapper) ImportGraphQLSchema(w http.ResponseWriter, r 
 	handler(w, r.WithContext(ctx))
 }
 
-// ImportOpenAPIDefinition operation middleware
-func (siw *ServerInterfaceWrapper) ImportOpenAPIDefinition(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ImportOpenAPIDefinition(w, r)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// ImportServiceFromCatalog operation middleware
-func (siw *ServerInterfaceWrapper) ImportServiceFromCatalog(w http.ResponseWriter, r *http.Request) {
+// ImportService operation middleware
+func (siw *ServerInterfaceWrapper) ImportService(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params ImportServiceFromCatalogParams
+	var params ImportServiceParams
 
 	// ------------- Required query parameter "serviceKey" -------------
 	if paramValue := r.URL.Query().Get("serviceKey"); paramValue != "" {
@@ -399,7 +323,7 @@ func (siw *ServerInterfaceWrapper) ImportServiceFromCatalog(w http.ResponseWrite
 	}
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ImportServiceFromCatalog(w, r, params)
+		siw.Handler.ImportService(w, r, params)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -415,52 +339,6 @@ func (siw *ServerInterfaceWrapper) ValidateAPI(w http.ResponseWriter, r *http.Re
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ValidateAPI(w, r)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// ValidateAsyncAPISpecification operation middleware
-func (siw *ServerInterfaceWrapper) ValidateAsyncAPISpecification(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params ValidateAsyncAPISpecificationParams
-
-	// ------------- Optional query parameter "returnContent" -------------
-	if paramValue := r.URL.Query().Get("returnContent"); paramValue != "" {
-
-	}
-
-	err = runtime.BindQueryParameter("form", true, false, "returnContent", r.URL.Query(), &params.ReturnContent)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "returnContent", Err: err})
-		return
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ValidateAsyncAPISpecification(w, r, params)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// ValidateGraphQLSchema operation middleware
-func (siw *ServerInterfaceWrapper) ValidateGraphQLSchema(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ValidateGraphQLSchema(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -579,8 +457,8 @@ func (siw *ServerInterfaceWrapper) UpdateAPI(w http.ResponseWriter, r *http.Requ
 	handler(w, r.WithContext(ctx))
 }
 
-// GetApisApiIdAsyncapi operation middleware
-func (siw *ServerInterfaceWrapper) GetApisApiIdAsyncapi(w http.ResponseWriter, r *http.Request) {
+// GetAPIDefinition operation middleware
+func (siw *ServerInterfaceWrapper) GetAPIDefinition(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
@@ -595,7 +473,7 @@ func (siw *ServerInterfaceWrapper) GetApisApiIdAsyncapi(w http.ResponseWriter, r
 	}
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetApisApiIdAsyncapi(w, r, apiId)
+		siw.Handler.GetAPIDefinition(w, r, apiId)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -605,8 +483,8 @@ func (siw *ServerInterfaceWrapper) GetApisApiIdAsyncapi(w http.ResponseWriter, r
 	handler(w, r.WithContext(ctx))
 }
 
-// PutApisApiIdAsyncapi operation middleware
-func (siw *ServerInterfaceWrapper) PutApisApiIdAsyncapi(w http.ResponseWriter, r *http.Request) {
+// UpdateAPIDefinition operation middleware
+func (siw *ServerInterfaceWrapper) UpdateAPIDefinition(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
@@ -621,340 +499,7 @@ func (siw *ServerInterfaceWrapper) PutApisApiIdAsyncapi(w http.ResponseWriter, r
 	}
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PutApisApiIdAsyncapi(w, r, apiId)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// GetAPIGraphQLSchema operation middleware
-func (siw *ServerInterfaceWrapper) GetAPIGraphQLSchema(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "apiId" -------------
-	var apiId string
-
-	err = runtime.BindStyledParameter("simple", false, "apiId", chi.URLParam(r, "apiId"), &apiId)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "apiId", Err: err})
-		return
-	}
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params GetAPIGraphQLSchemaParams
-
-	headers := r.Header
-
-	// ------------- Optional header parameter "Accept" -------------
-	if valueList, found := headers[http.CanonicalHeaderKey("Accept")]; found {
-		var Accept string
-		n := len(valueList)
-		if n != 1 {
-			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Accept", Count: n})
-			return
-		}
-
-		err = runtime.BindStyledParameterWithLocation("simple", false, "Accept", runtime.ParamLocationHeader, valueList[0], &Accept)
-		if err != nil {
-			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Accept", Err: err})
-			return
-		}
-
-		params.Accept = &Accept
-
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAPIGraphQLSchema(w, r, apiId, params)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// UpdateAPIGraphQLSchema operation middleware
-func (siw *ServerInterfaceWrapper) UpdateAPIGraphQLSchema(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "apiId" -------------
-	var apiId string
-
-	err = runtime.BindStyledParameter("simple", false, "apiId", chi.URLParam(r, "apiId"), &apiId)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "apiId", Err: err})
-		return
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.UpdateAPIGraphQLSchema(w, r, apiId)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// GetAPISwagger operation middleware
-func (siw *ServerInterfaceWrapper) GetAPISwagger(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "apiId" -------------
-	var apiId string
-
-	err = runtime.BindStyledParameter("simple", false, "apiId", chi.URLParam(r, "apiId"), &apiId)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "apiId", Err: err})
-		return
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAPISwagger(w, r, apiId)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// UpdateAPISwagger operation middleware
-func (siw *ServerInterfaceWrapper) UpdateAPISwagger(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "apiId" -------------
-	var apiId string
-
-	err = runtime.BindStyledParameter("simple", false, "apiId", chi.URLParam(r, "apiId"), &apiId)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "apiId", Err: err})
-		return
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.UpdateAPISwagger(w, r, apiId)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// GetAllGateways operation middleware
-func (siw *ServerInterfaceWrapper) GetAllGateways(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params GetAllGatewaysParams
-
-	// ------------- Optional query parameter "limit" -------------
-	if paramValue := r.URL.Query().Get("limit"); paramValue != "" {
-
-	}
-
-	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "offset" -------------
-	if paramValue := r.URL.Query().Get("offset"); paramValue != "" {
-
-	}
-
-	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "sortBy" -------------
-	if paramValue := r.URL.Query().Get("sortBy"); paramValue != "" {
-
-	}
-
-	err = runtime.BindQueryParameter("form", true, false, "sortBy", r.URL.Query(), &params.SortBy)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "sortBy", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "sortOrder" -------------
-	if paramValue := r.URL.Query().Get("sortOrder"); paramValue != "" {
-
-	}
-
-	err = runtime.BindQueryParameter("form", true, false, "sortOrder", r.URL.Query(), &params.SortOrder)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "sortOrder", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "query" -------------
-	if paramValue := r.URL.Query().Get("query"); paramValue != "" {
-
-	}
-
-	err = runtime.BindQueryParameter("form", true, false, "query", r.URL.Query(), &params.Query)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "query", Err: err})
-		return
-	}
-
-	headers := r.Header
-
-	// ------------- Optional header parameter "Accept" -------------
-	if valueList, found := headers[http.CanonicalHeaderKey("Accept")]; found {
-		var Accept string
-		n := len(valueList)
-		if n != 1 {
-			siw.ErrorHandlerFunc(w, r, &TooManyValuesForParamError{ParamName: "Accept", Count: n})
-			return
-		}
-
-		err = runtime.BindStyledParameterWithLocation("simple", false, "Accept", runtime.ParamLocationHeader, valueList[0], &Accept)
-		if err != nil {
-			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "Accept", Err: err})
-			return
-		}
-
-		params.Accept = &Accept
-
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetAllGateways(w, r, params)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// CreateGateway operation middleware
-func (siw *ServerInterfaceWrapper) CreateGateway(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params CreateGatewayParams
-
-	// ------------- Optional query parameter "openAPIVersion" -------------
-	if paramValue := r.URL.Query().Get("openAPIVersion"); paramValue != "" {
-
-	}
-
-	err = runtime.BindQueryParameter("form", true, false, "openAPIVersion", r.URL.Query(), &params.OpenAPIVersion)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "openAPIVersion", Err: err})
-		return
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.CreateGateway(w, r, params)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// DeleteGateway operation middleware
-func (siw *ServerInterfaceWrapper) DeleteGateway(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "gatewayId" -------------
-	var gatewayId string
-
-	err = runtime.BindStyledParameter("simple", false, "gatewayId", chi.URLParam(r, "gatewayId"), &gatewayId)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "gatewayId", Err: err})
-		return
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteGateway(w, r, gatewayId)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// GetGateway operation middleware
-func (siw *ServerInterfaceWrapper) GetGateway(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "gatewayId" -------------
-	var gatewayId string
-
-	err = runtime.BindStyledParameter("simple", false, "gatewayId", chi.URLParam(r, "gatewayId"), &gatewayId)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "gatewayId", Err: err})
-		return
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetGateway(w, r, gatewayId)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// UpdateGateway operation middleware
-func (siw *ServerInterfaceWrapper) UpdateGateway(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "gatewayId" -------------
-	var gatewayId string
-
-	err = runtime.BindStyledParameter("simple", false, "gatewayId", chi.URLParam(r, "gatewayId"), &gatewayId)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "gatewayId", Err: err})
-		return
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.UpdateGateway(w, r, gatewayId)
+		siw.Handler.UpdateAPIDefinition(w, r, apiId)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1060,47 +605,6 @@ func (siw *ServerInterfaceWrapper) GetAllPolicies(w http.ResponseWriter, r *http
 	handler(w, r.WithContext(ctx))
 }
 
-// CreatePolicy operation middleware
-func (siw *ServerInterfaceWrapper) CreatePolicy(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.CreatePolicy(w, r)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// DeletePolicy operation middleware
-func (siw *ServerInterfaceWrapper) DeletePolicy(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "mediationPolicyId" -------------
-	var mediationPolicyId string
-
-	err = runtime.BindStyledParameter("simple", false, "mediationPolicyId", chi.URLParam(r, "mediationPolicyId"), &mediationPolicyId)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "mediationPolicyId", Err: err})
-		return
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeletePolicy(w, r, mediationPolicyId)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
 // GetPolicy operation middleware
 func (siw *ServerInterfaceWrapper) GetPolicy(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1127,59 +631,6 @@ func (siw *ServerInterfaceWrapper) GetPolicy(w http.ResponseWriter, r *http.Requ
 	handler(w, r.WithContext(ctx))
 }
 
-// Search operation middleware
-func (siw *ServerInterfaceWrapper) Search(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params SearchParams
-
-	// ------------- Optional query parameter "limit" -------------
-	if paramValue := r.URL.Query().Get("limit"); paramValue != "" {
-
-	}
-
-	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "offset" -------------
-	if paramValue := r.URL.Query().Get("offset"); paramValue != "" {
-
-	}
-
-	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "query" -------------
-	if paramValue := r.URL.Query().Get("query"); paramValue != "" {
-
-	}
-
-	err = runtime.BindQueryParameter("form", true, false, "query", r.URL.Query(), &params.Query)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "query", Err: err})
-		return
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.Search(w, r, params)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
 // SearchServices operation middleware
 func (siw *ServerInterfaceWrapper) SearchServices(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1197,6 +648,17 @@ func (siw *ServerInterfaceWrapper) SearchServices(w http.ResponseWriter, r *http
 	err = runtime.BindQueryParameter("form", true, false, "name", r.URL.Query(), &params.Name)
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "name", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "namespace" -------------
+	if paramValue := r.URL.Query().Get("namespace"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "namespace", r.URL.Query(), &params.Namespace)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "namespace", Err: err})
 		return
 	}
 
@@ -1270,8 +732,22 @@ func (siw *ServerInterfaceWrapper) GetServiceById(w http.ResponseWriter, r *http
 		return
 	}
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetServiceByIdParams
+
+	// ------------- Optional query parameter "namespace" -------------
+	if paramValue := r.URL.Query().Get("namespace"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "namespace", r.URL.Query(), &params.Namespace)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "namespace", Err: err})
+		return
+	}
+
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetServiceById(w, r, serviceId)
+		siw.Handler.GetServiceById(w, r, serviceId, params)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1296,8 +772,22 @@ func (siw *ServerInterfaceWrapper) GetServiceUsage(w http.ResponseWriter, r *htt
 		return
 	}
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetServiceUsageParams
+
+	// ------------- Optional query parameter "namespace" -------------
+	if paramValue := r.URL.Query().Get("namespace"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "namespace", r.URL.Query(), &params.Namespace)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "namespace", Err: err})
+		return
+	}
+
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetServiceUsage(w, r, serviceId)
+		siw.Handler.GetServiceUsage(w, r, serviceId, params)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1433,25 +923,16 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/apis/import", wrapper.ImportAPI)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/apis/import-graphql-schema", wrapper.ImportGraphQLSchema)
+		r.Post(options.BaseURL+"/apis/import-definition", wrapper.ImportAPIDefinition)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/apis/import-openapi", wrapper.ImportOpenAPIDefinition)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/apis/import-service", wrapper.ImportServiceFromCatalog)
+		r.Post(options.BaseURL+"/apis/import-service", wrapper.ImportService)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/apis/validate", wrapper.ValidateAPI)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/apis/validate-asyncapi", wrapper.ValidateAsyncAPISpecification)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/apis/validate-graphql-schema", wrapper.ValidateGraphQLSchema)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/apis/validate-openapi", wrapper.ValidateOpenAPIDefinition)
+		r.Post(options.BaseURL+"/apis/validate-definition", wrapper.ValidateOpenAPIDefinition)
 	})
 	r.Group(func(r chi.Router) {
 		r.Delete(options.BaseURL+"/apis/{apiId}", wrapper.DeleteAPI)
@@ -1463,52 +944,16 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Put(options.BaseURL+"/apis/{apiId}", wrapper.UpdateAPI)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/apis/{apiId}/asyncapi", wrapper.GetApisApiIdAsyncapi)
+		r.Get(options.BaseURL+"/apis/{apiId}/definition", wrapper.GetAPIDefinition)
 	})
 	r.Group(func(r chi.Router) {
-		r.Put(options.BaseURL+"/apis/{apiId}/asyncapi", wrapper.PutApisApiIdAsyncapi)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/apis/{apiId}/graphql-schema", wrapper.GetAPIGraphQLSchema)
-	})
-	r.Group(func(r chi.Router) {
-		r.Put(options.BaseURL+"/apis/{apiId}/graphql-schema", wrapper.UpdateAPIGraphQLSchema)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/apis/{apiId}/swagger", wrapper.GetAPISwagger)
-	})
-	r.Group(func(r chi.Router) {
-		r.Put(options.BaseURL+"/apis/{apiId}/swagger", wrapper.UpdateAPISwagger)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/gateways", wrapper.GetAllGateways)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/gateways", wrapper.CreateGateway)
-	})
-	r.Group(func(r chi.Router) {
-		r.Delete(options.BaseURL+"/gateways/{gatewayId}", wrapper.DeleteGateway)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/gateways/{gatewayId}", wrapper.GetGateway)
-	})
-	r.Group(func(r chi.Router) {
-		r.Put(options.BaseURL+"/gateways/{gatewayId}", wrapper.UpdateGateway)
+		r.Put(options.BaseURL+"/apis/{apiId}/definition", wrapper.UpdateAPIDefinition)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/policies", wrapper.GetAllPolicies)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/policies", wrapper.CreatePolicy)
-	})
-	r.Group(func(r chi.Router) {
-		r.Delete(options.BaseURL+"/policies/{mediationPolicyId}", wrapper.DeletePolicy)
-	})
-	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/policies/{mediationPolicyId}", wrapper.GetPolicy)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/search", wrapper.Search)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/services", wrapper.SearchServices)

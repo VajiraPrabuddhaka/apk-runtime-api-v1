@@ -8,7 +8,7 @@ info:
 servers:
   - url: https://virtserver.swaggerhub.com/ARUNAN_1/RuntimeAPI/1.0.0
     description: SwaggerHub API Auto Mocking
-  - url: http://localhost:9090
+  - url: http://localhost:3000
 paths:
   /apis:
     get:
@@ -1765,7 +1765,6 @@ components:
       required:
         - name
         - namespace
-        - portmapping
         - type
       type: object
       properties:
@@ -1791,7 +1790,6 @@ components:
       required:
         - name
         - port
-        - protocol
         - targetport
       type: object
       properties:
@@ -1804,10 +1802,12 @@ components:
           type: string
           example: tcp
         targetport:
-          type: number
+          type: integer
+          format: int32
           example: 8088
         port:
-          type: number
+          type: integer
+          format: int32
           example: 8080
     GatewayList:
       title: Paginated List of Gateways

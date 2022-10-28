@@ -68,9 +68,9 @@ func GetServices(namespace string, offset int, limit int, clientSet *kubernetes.
 func processServiceList(servicesList *v1.ServiceList) (svs []*gen.Service, total int) {
 	var services []*gen.Service
 	for _, element := range servicesList.Items {
-		var portMapping []*gen.PortMapping
+		var portMapping []gen.PortMapping
 		for _, p := range element.Spec.Ports {
-			portMapping = append(portMapping, &gen.PortMapping{
+			portMapping = append(portMapping, gen.PortMapping{
 				Name:       p.Name,
 				Protocol:   p.AppProtocol,
 				Targetport: p.TargetPort.IntVal,
@@ -81,7 +81,7 @@ func processServiceList(servicesList *v1.ServiceList) (svs []*gen.Service, total
 			Name:        element.GetName(),
 			Namespace:   element.GetNamespace(),
 			Type:        element.TypeMeta.Kind,
-			Portmapping: portMapping,
+			Portmapping: &portMapping,
 		}
 		services = append(services, service)
 	}
@@ -89,15 +89,15 @@ func processServiceList(servicesList *v1.ServiceList) (svs []*gen.Service, total
 	return services, 6
 }
 
-func generatePortMapping(svc *v1.Service) []*gen.PortMapping {
-	var portMapping []*gen.PortMapping
+func generatePortMapping(svc *v1.Service) *[]gen.PortMapping {
+	var portMapping []gen.PortMapping
 	for _, p := range svc.Spec.Ports {
-		portMapping = append(portMapping, &gen.PortMapping{
+		portMapping = append(portMapping, gen.PortMapping{
 			Name:       p.Name,
 			Protocol:   p.AppProtocol,
 			Targetport: p.TargetPort.IntVal,
 			Port:       p.Port,
 		})
 	}
-	return portMapping
+	return &portMapping
 }
