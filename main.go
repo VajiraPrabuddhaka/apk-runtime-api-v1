@@ -15,20 +15,28 @@ func main() {
 	s := &runtime.Server{
 		ClientSetK8s:      client.GetOutClusterClientSetKubernetes(),
 		ClientSetV1alpha1: client.GetOutClusterHttpRouteClientSetV1alpha1(),
-		ApiCache:          cache.NewLocalCache(2 * time.Minute),
+		ApiCache:          cache.NewAPILocalCache(2 * time.Minute),
+		ServiceCache:      cache.NewServiceLocalCache(2 * time.Minute),
 	}
 	h := gen.Handler(s)
 
-	evt := &informers.APIEventHandler{
-		Cache: cache.NewLocalCache(60 * time.Minute),
+	evtApi := &informers.APIEventHandler{
+		Cache: s.ApiCache,
 	}
 
-	ctrl, _ := informers.WatchResources(client.GetOutClusterAPIClientSetV1alpha1(), evt)
+	evtService := &informers.ServiceEventHandler{
+		Cache: s.ServiceCache,
+	}
+
+	ctrlApi, _ := informers.WatchAPIs(client.GetOutClusterAPIClientSetV1alpha1(), evtApi)
+
+	ctrlSvc := informers.WatchServices(client.GetOutClusterClientSetKubernetes(), evtService)
 
 	go func() {
 		stop := make(chan struct{})
 		defer close(stop)
-		ctrl.Run(stop)
+		ctrlSvc.Run(stop)
+		ctrlApi.Run(stop)
 	}()
 	http.ListenAndServe(":3000", h)
 }

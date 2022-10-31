@@ -18,6 +18,12 @@ type API struct {
 	UpdatedTime string `json:"updatedTime"`
 }
 
+type ListAPIsResponse struct {
+	Count      int         `json:"count"`
+	List       []API       `json:"list"`
+	Pagination *Pagination `json:"pagination"`
+}
+
 type CachedAPI struct {
 	API
 	expireAtTimestamp int64
@@ -31,7 +37,7 @@ type APILocalCache struct {
 	apis map[string]CachedAPI
 }
 
-func NewLocalCache(cleanupInterval time.Duration) *APILocalCache {
+func NewAPILocalCache(cleanupInterval time.Duration) *APILocalCache {
 	lc := &APILocalCache{
 		apis: make(map[string]CachedAPI),
 		stop: make(chan struct{}),
@@ -82,7 +88,7 @@ func (lc *APILocalCache) Update(u API, expireAtTimestamp int64) {
 }
 
 var (
-	errUserNotInCache = errors.New("the API isn't in cache")
+	errAPINotInCache = errors.New("the API isn't in cache")
 )
 
 func (lc *APILocalCache) Read(id string) (API, error) {
@@ -91,10 +97,31 @@ func (lc *APILocalCache) Read(id string) (API, error) {
 
 	cu, ok := lc.apis[id]
 	if !ok {
-		return API{}, errUserNotInCache
+		return API{}, errAPINotInCache
 	}
 
 	return cu.API, nil
+}
+
+func (lc *APILocalCache) ReadAll() ([]API, error) {
+	var apis []API
+
+	for _, api := range lc.apis {
+		apis = append(apis, api.API)
+	}
+	return apis, nil
+}
+
+func (lc *APILocalCache) APIsSearch(offset *int, limit *int, name *string, namespace *string, sortBy *string,
+	sortOrder *string) (*ListAPIsResponse, error) {
+	//Todo : error handling
+	s, _ := lc.ReadAll()
+	apis, count, pagination, _ := GenResultWithPagination(interface{}(s), "API", offset, limit, sortBy, *sortOrder)
+	return &ListAPIsResponse{
+		Count:      count,
+		List:       apis.([]API),
+		Pagination: pagination,
+	}, nil
 }
 
 func (lc *APILocalCache) Delete(id string) {

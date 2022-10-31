@@ -8,11 +8,10 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/tools/cache"
-	"log"
 	"time"
 )
 
-func WatchResources(clientSet v1alpha1.APIV1Alpha1Interface, e *APIEventHandler) (cache.Controller, cache.Store) {
+func WatchAPIs(clientSet v1alpha1.APIV1Alpha1Interface, e *APIEventHandler) (cache.Controller, cache.Store) {
 	//h := APIEventHandler{}
 	apiStore, apiController := cache.NewInformer(
 		&cache.ListWatch{
@@ -35,16 +34,29 @@ func WatchResources(clientSet v1alpha1.APIV1Alpha1Interface, e *APIEventHandler)
 	return apiController, apiStore
 }
 
-// APIEventHandler is used to provide functions for resource event handler
+// APIEventHandler is used to provide functions for API resource event handler
 type APIEventHandler struct {
 	Cache *api_localcache.APILocalCache
 }
 
 func (h *APIEventHandler) onAdd(obj interface{}) {
-	log.Printf("onAdd called : %v", obj)
+	v1, _ := obj.(*v1alpha1.API)
+
+	api := api_localcache.API{
+		Id:          string(v1.UID),
+		Namespace:   v1.Namespace,
+		Name:        v1.Spec.APIDisplayName,
+		Context:     v1.Spec.Context,
+		Version:     v1.Spec.APIVersion,
+		Type:        v1.Spec.APIType,
+		CreatedTime: v1.CreationTimestamp.String(),
+		UpdatedTime: time.Now().String(),
+	}
+	h.Cache.Update(api, time.Now().Unix())
 }
 
 func (h *APIEventHandler) OnUpdate(oldObj interface{}, newObj interface{}) {
+	//Todo perform comparison of oldObj & newObj
 	v1, _ := newObj.(*v1alpha1.API)
 
 	api := api_localcache.API{
@@ -61,5 +73,6 @@ func (h *APIEventHandler) OnUpdate(oldObj interface{}, newObj interface{}) {
 }
 
 func (h *APIEventHandler) OnDelete(obj interface{}) {
-	log.Printf("onAdd called : %v", obj)
+	v1, _ := obj.(*v1alpha1.API)
+	h.Cache.Delete(string(v1.UID))
 }
