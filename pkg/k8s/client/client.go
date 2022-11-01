@@ -3,7 +3,7 @@ package client
 import (
 	"flag"
 	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/pkg/k8s/api/v1alpha1"
-	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/pkg/k8s/httproute/gateway/clientset/v1alpha2"
+	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/pkg/k8s/httproute/v1alpha2"
 	"path/filepath"
 
 	"k8s.io/client-go/kubernetes"

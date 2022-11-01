@@ -6,7 +6,7 @@ import (
 	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/internal/cache"
 	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/internal/server/gen"
 	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/internal/service"
-	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/pkg/k8s/httproute/gateway/clientset/v1alpha2"
+	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/pkg/k8s/httproute/v1alpha2"
 	"k8s.io/client-go/kubernetes"
 	"log"
 	"net/http"
