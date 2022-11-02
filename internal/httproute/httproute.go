@@ -32,7 +32,7 @@ func CreateHttpRoute(namespace string, name string, route *gw_v1alpha2.HTTPRoute
 	httpRoute, err := clientSet.HttpRoutes(namespace).Create(context.TODO(), route)
 
 	if err != nil {
-		log.Printf("Error getting httproute : %v", err)
+		log.Printf("Error creating httproute : %v", err)
 		return nil, err
 	}
 	return httpRoute, err
