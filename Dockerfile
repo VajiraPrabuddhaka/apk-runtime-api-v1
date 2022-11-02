@@ -11,6 +11,6 @@ COPY / /app/
 
 RUN go mod download
 
-RUN go build -o /apk-runtime-api
+RUN go build -o /apk-runtime-api-v1
 
 CMD [ "/apk-runtime-api-v1" ]
