@@ -561,7 +561,7 @@ paths:
       description: |
         This operation can be used to validate an OpenAPI definition and retrieve a summary. Provide either `url`
         or `file` to specify the definition.
-      operationId: validateOpenAPIDefinition
+      operationId: validateAPIDefinition
       parameters:
         - name: returnContent
           in: query

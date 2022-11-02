@@ -319,8 +319,8 @@ type ImportServiceParams struct {
 	ServiceKey string `form:"serviceKey" json:"serviceKey"`
 }
 
-// ValidateOpenAPIDefinitionParams defines parameters for ValidateOpenAPIDefinition.
-type ValidateOpenAPIDefinitionParams struct {
+// ValidateAPIDefinitionParams defines parameters for ValidateOpenAPIDefinition.
+type ValidateAPIDefinitionParams struct {
 	// Specify whether to return the full content of the OpenAPI definition in the response. This is only
 	// applicable when using url based validation
 	ReturnContent *bool `form:"returnContent,omitempty" json:"returnContent,omitempty"`

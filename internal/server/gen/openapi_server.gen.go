@@ -36,7 +36,7 @@ type ServerInterface interface {
 	ValidateAPI(w http.ResponseWriter, r *http.Request)
 	// Validate an OpenAPI Definition
 	// (POST /apis/validate-definition)
-	ValidateOpenAPIDefinition(w http.ResponseWriter, r *http.Request, params ValidateOpenAPIDefinitionParams)
+	ValidateAPIDefinition(w http.ResponseWriter, r *http.Request, params ValidateAPIDefinitionParams)
 	// Delete an API
 	// (DELETE /apis/{apiId})
 	DeleteAPI(w http.ResponseWriter, r *http.Request, apiId string)
@@ -348,14 +348,14 @@ func (siw *ServerInterfaceWrapper) ValidateAPI(w http.ResponseWriter, r *http.Re
 	handler(w, r.WithContext(ctx))
 }
 
-// ValidateOpenAPIDefinition operation middleware
-func (siw *ServerInterfaceWrapper) ValidateOpenAPIDefinition(w http.ResponseWriter, r *http.Request) {
+// ValidateAPIDefinition operation middleware
+func (siw *ServerInterfaceWrapper) ValidateAPIDefinition(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params ValidateOpenAPIDefinitionParams
+	var params ValidateAPIDefinitionParams
 
 	// ------------- Optional query parameter "returnContent" -------------
 	if paramValue := r.URL.Query().Get("returnContent"); paramValue != "" {
@@ -369,7 +369,7 @@ func (siw *ServerInterfaceWrapper) ValidateOpenAPIDefinition(w http.ResponseWrit
 	}
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ValidateOpenAPIDefinition(w, r, params)
+		siw.Handler.ValidateAPIDefinition(w, r, params)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -932,7 +932,7 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/apis/validate", wrapper.ValidateAPI)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/apis/validate-definition", wrapper.ValidateOpenAPIDefinition)
+		r.Post(options.BaseURL+"/apis/validate-definition", wrapper.ValidateAPIDefinition)
 	})
 	r.Group(func(r chi.Router) {
 		r.Delete(options.BaseURL+"/apis/{apiId}", wrapper.DeleteAPI)
