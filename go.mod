@@ -1,6 +1,6 @@
 module github.com/VajiraPrabuddhaka/apk-runtime-api-v1
 
-go 1.18
+go 1.19
 
 require (
 	github.com/deepmap/oapi-codegen v1.11.0
