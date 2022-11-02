@@ -1,20 +1,20 @@
 package service
 
 import (
-	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/internal/common"
+	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/internal/cache"
 	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/internal/server/gen"
 )
 
 type ListServicesResponse struct {
-	Count      int               `json:"count"`
-	List       []*gen.Service    `json:"list"`
-	Pagination common.Pagination `json:"pagination"`
+	Count      int              `json:"count"`
+	List       []*gen.Service   `json:"list"`
+	Pagination cache.Pagination `json:"pagination"`
 }
 
 type ServiceUsageResponse struct {
 	Count      int               `json:"count"`
 	List       []ServiceUsageAPI `json:"list"`
-	Pagination common.Pagination `json:"pagination"`
+	Pagination cache.Pagination  `json:"pagination"`
 }
 
 type ServiceUsageAPI struct {

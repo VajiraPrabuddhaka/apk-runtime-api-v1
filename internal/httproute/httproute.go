@@ -2,7 +2,7 @@ package httproute
 
 import (
 	"context"
-	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/pkg/k8s/httproute/gateway/clientset/v1alpha2"
+	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/pkg/k8s/httproute/v1alpha2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"log"
 	gw_v1alpha2 "sigs.k8s.io/gateway-api/apis/v1alpha2"

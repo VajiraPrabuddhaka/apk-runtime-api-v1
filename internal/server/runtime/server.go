@@ -4,21 +4,25 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/internal/cache"
 	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/internal/server/gen"
 	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/internal/service"
-	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/pkg/k8s/httproute/gateway/clientset/v1alpha2"
+	"github.com/VajiraPrabuddhaka/apk-runtime-api-v1/pkg/k8s/httproute/v1alpha2"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/ghodss/yaml"
 	"io/ioutil"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"log"
 	"net/http"
 )
 
 type Server struct {
 	ClientSetK8s      *kubernetes.Clientset
 	ClientSetV1alpha1 *v1alpha2.HttpRouteV1Alpha1Client
+	ApiCache          *cache.APILocalCache
+	ServiceCache      *cache.ServiceLocalCache
 }
 
 func (r2 Server) ImportAPIDefinition(w http.ResponseWriter, r *http.Request) {
@@ -43,7 +47,13 @@ func (r2 Server) UpdateAPIDefinition(w http.ResponseWriter, r *http.Request, api
 
 func (r2 Server) GetAllAPIs(w http.ResponseWriter, r *http.Request, params gen.GetAllAPIsParams) {
 	//TODO implement me
-	panic("implement me")
+	s := ""
+	a, err := r2.ApiCache.APIsSearch(params.Offset, params.Limit, &s, &s, (*string)(params.SortBy), (*string)(params.SortOrder))
+	b, err := json.Marshal(a)
+	if err != nil {
+		log.Printf("Error marshalling apis : %v", err)
+	}
+	w.Write(b)
 }
 
 func (r2 Server) CreateAPI(w http.ResponseWriter, r *http.Request) {
@@ -195,10 +205,11 @@ func (r2 Server) GetPolicy(w http.ResponseWriter, r *http.Request, mediationPoli
 
 func (r2 Server) SearchServices(w http.ResponseWriter, r *http.Request, params gen.SearchServicesParams) {
 	//ToDO handle errors
-	s := service.GetServices("default", 0, 4, r2.ClientSetK8s)
+	s, err := r2.ServiceCache.ServicesSearch(params.Offset, params.Limit, params.Name, params.Namespace,
+		(*string)(params.SortBy), (*string)(params.SortOrder))
 	b, err := json.Marshal(s)
 	if err != nil {
-		fmt.Println(err)
+		log.Printf("Error marshalling Services : %v\n", err)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
