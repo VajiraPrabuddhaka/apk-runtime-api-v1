@@ -123,3 +123,14 @@ func CreateSwaggerDefinitionConfigMap(apiName string, definition []byte, clientS
 		fmt.Printf("Unable to store API definition for API:"+apiName+", ", err)
 	}
 }
+
+func RetrieveSwaggerDefinitionFromConfigMap(apiName string, clientSet *kubernetes.Clientset) string {
+	cmClient := clientSet.CoreV1().ConfigMaps("default")
+	s, err := cmClient.Get(context.TODO(), "swagger-definition-"+strings.ToLower(apiName), metav1.GetOptions{})
+
+	if err != nil {
+		return ""
+	}
+
+	return s.Data["swagger.yaml"]
+}

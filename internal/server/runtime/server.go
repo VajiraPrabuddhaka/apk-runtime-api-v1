@@ -50,8 +50,10 @@ func (r2 Server) ImportService(w http.ResponseWriter, r *http.Request, params ge
 }
 
 func (r2 Server) GetAPIDefinition(w http.ResponseWriter, r *http.Request, apiId string) {
-	//TODO implement me
-	panic("implement me")
+	def := api_pkg.RetrieveSwaggerDefinitionFromConfigMap(apiId, r2.ClientSetK8s)
+	w.Header().Set("Content-Type", "application/yaml")
+	b, _ := yaml.Marshal(def)
+	w.Write(b)
 }
 
 func (r2 Server) UpdateAPIDefinition(w http.ResponseWriter, r *http.Request, apiId string) {
@@ -170,16 +172,6 @@ func (r2 Server) PutApisApiIdAsyncapi(w http.ResponseWriter, r *http.Request, ap
 }
 
 func (r2 Server) UpdateAPIGraphQLSchema(w http.ResponseWriter, r *http.Request, apiId string) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r2 Server) GetAPISwagger(w http.ResponseWriter, r *http.Request, apiId string) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r2 Server) UpdateAPISwagger(w http.ResponseWriter, r *http.Request, apiId string) {
 	//TODO implement me
 	panic("implement me")
 }
