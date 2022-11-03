@@ -93,7 +93,7 @@ func (r2 Server) CreateAPI(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	api_pkg.CreateSwaggerDefintionConfigMap(api.Name, data, r2.ClientSetK8s)
+	api_pkg.CreateSwaggerDefinitionConfigMap(api.Name, data, r2.ClientSetK8s)
 
 	//Todo : create HTTPRoute and Backend CRs
 	w.Header().Set("Content-Type", "application/json")
