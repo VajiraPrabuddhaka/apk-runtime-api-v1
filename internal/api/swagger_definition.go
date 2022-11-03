@@ -27,7 +27,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"log"
 	"strings"
 )
 
@@ -105,7 +104,7 @@ func convertResourceToSwaggerOperation(pathItem *openapi3.PathItem, operation ge
 	}
 }
 
-func CreateSwaggerDefintionConfigMap(apiName string, definition []byte, clientSet *kubernetes.Clientset) {
+func CreateSwaggerDefinitionConfigMap(apiName string, definition []byte, clientSet *kubernetes.Clientset) {
 	swaggerMap := make(map[string]string)
 	swaggerMap["swagger.yaml"] = string(definition)
 	cm := corev1.ConfigMap{
@@ -119,8 +118,20 @@ func CreateSwaggerDefintionConfigMap(apiName string, definition []byte, clientSe
 		},
 		Data: swaggerMap,
 	}
-	_, err := clientSet.CoreV1().ConfigMaps("default").Create(context.TODO(), &cm, metav1.CreateOptions{})
+	//TODO get proper namespace
+	_, err := clientSet.CoreV1().ConfigMaps("default").Create(context.Background(), &cm, metav1.CreateOptions{})
 	if err != nil {
-		log.Println(err)
+		fmt.Printf("Unable to store API definition for API:"+apiName+", ", err)
 	}
+}
+
+func RetrieveSwaggerDefinitionFromConfigMap(apiName string, clientSet *kubernetes.Clientset) string {
+	cmClient := clientSet.CoreV1().ConfigMaps("default")
+	s, err := cmClient.Get(context.TODO(), "swagger-definition-"+strings.ToLower(apiName), metav1.GetOptions{})
+
+	if err != nil {
+		return ""
+	}
+
+	return s.Data["swagger.yaml"]
 }
